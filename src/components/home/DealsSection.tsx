@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+﻿import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { products } from "@/data/products";
@@ -34,17 +35,13 @@ export function DealsSection() {
             return (
               <Link
                 key={product.id}
-                to={`/product/${product.slug}`}
-                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-volt-surface to-background border border-border/30 hover:border-accent/40 transition-all duration-500"
+                href={`/product/${product.slug}`}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-aura-surface to-background border border-border/30 hover:border-accent/40 transition-all duration-500"
               >
                 <div className="flex flex-col md:flex-row h-full">
                   {/* Image */}
-                  <div className="relative w-full md:w-1/2 aspect-square md:aspect-auto overflow-hidden">
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                  <div className="relative w-full md:w-1/2 aspect-square md:aspect-[4/3] overflow-hidden">
+                    <Image src={product.images[0]} alt={product.name} fill sizes="(min-width: 768px) 50vw, 100vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/50 md:block hidden" />
                   </div>
 
@@ -92,3 +89,6 @@ export function DealsSection() {
     </section>
   );
 }
+
+
+

@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+﻿import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { categories } from "@/data/products";
 
@@ -17,7 +18,7 @@ export function CategorySection() {
             </p>
           </div>
           <Link
-            to="/products"
+            href="/products"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-primary hover:underline"
           >
             View All Categories
@@ -30,17 +31,13 @@ export function CategorySection() {
           {categories.map((category, index) => (
             <Link
               key={category.id}
-              to={`/products?category=${category.slug}`}
+              href={`/products?category=${category.slug}`}
               className="category-card group"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div className="aspect-square relative overflow-hidden">
                 {/* Background Image */}
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                <Image src={category.image} alt={category.name} fill sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
@@ -66,7 +63,7 @@ export function CategorySection() {
 
         {/* Mobile View All */}
         <Link
-          to="/products"
+          href="/products"
           className="sm:hidden flex items-center justify-center gap-2 mt-8 text-sm font-medium text-primary"
         >
           View All Categories
@@ -76,3 +73,5 @@ export function CategorySection() {
     </section>
   );
 }
+
+

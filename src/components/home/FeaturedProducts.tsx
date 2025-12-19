@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -8,7 +8,7 @@ export function FeaturedProducts() {
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
 
   return (
-    <section className="py-16 lg:py-24 bg-volt-surface/30">
+    <section className="py-16 lg:py-24 bg-aura-surface/60">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
@@ -21,7 +21,7 @@ export function FeaturedProducts() {
             </p>
           </div>
           <Button variant="outline" asChild>
-            <Link to="/products">
+            <Link href="/products">
               View All
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
@@ -44,3 +44,4 @@ export function FeaturedProducts() {
     </section>
   );
 }
+

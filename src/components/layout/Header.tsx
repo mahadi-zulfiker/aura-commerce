@@ -1,6 +1,9 @@
+﻿"use client";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, Zap } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/cart";
@@ -18,19 +21,20 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between gap-4 lg:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-volt-purple shadow-glow">
-              <Zap className="w-6 h-6 text-primary-foreground" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/20 border border-primary/20 shadow-glow">
+              <Image src="/logo.svg" alt="Aura Commerce" width={24} height={24} />
             </div>
-            <span className="text-2xl font-display font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent group-hover:from-primary group-hover:to-volt-purple transition-all duration-300">
-              VOLT
+            <span className="text-2xl font-display font-bold tracking-tight">
+              <span className="gradient-text">Aura</span>{" "}
+              <span className="text-foreground/80">Commerce</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             <Link
-              to="/products"
+              href="/products"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               All Products
@@ -38,7 +42,7 @@ export function Header() {
             {categories.slice(0, 5).map((category) => (
               <Link
                 key={category.id}
-                to={`/products?category=${category.slug}`}
+                href={`/products?category=${category.slug}`}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {category.name}
@@ -123,7 +127,7 @@ export function Header() {
             </div>
             <nav className="flex flex-col gap-2">
               <Link
-                to="/products"
+                href="/products"
                 className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -132,7 +136,7 @@ export function Header() {
               {categories.map((category) => (
                 <Link
                   key={category.id}
-                  to={`/products?category=${category.slug}`}
+                  href={`/products?category=${category.slug}`}
                   className="px-4 py-2 text-sm font-medium text-muted-foreground rounded-lg hover:bg-muted hover:text-foreground transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -146,3 +150,4 @@ export function Header() {
     </header>
   );
 }
+

@@ -1,5 +1,9 @@
+﻿"use client";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import type { MouseEvent } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +26,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
@@ -34,7 +38,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     });
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
@@ -43,7 +47,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
   return (
     <Link
-      to={`/product/${product.slug}`}
+      href={`/product/${product.slug}`}
       className={cn("group block", className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -51,11 +55,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <div className="product-card h-full flex flex-col">
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden rounded-t-xl bg-muted/30">
-          <img
-            src={product.images[isHovered && product.images[1] ? 1 : 0]}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
+          <Image src={product.images[isHovered && product.images[1] ? 1 : 0]} alt={product.name} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -159,3 +159,5 @@ export function ProductCard({ product, className }: ProductCardProps) {
     </Link>
   );
 }
+
+

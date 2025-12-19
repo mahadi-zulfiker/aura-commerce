@@ -1,5 +1,8 @@
+﻿"use client";
+
 import { X, Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
@@ -48,7 +51,7 @@ export function CartDrawer() {
                 Looks like you haven't added anything yet
               </p>
               <Button variant="glow" onClick={closeCart} asChild>
-                <Link to="/products">
+                <Link href="/products">
                   Start Shopping
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
@@ -62,11 +65,7 @@ export function CartDrawer() {
               >
                 {/* Image */}
                 <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                  <img
-                    src={item.product.images[0]}
-                    alt={item.product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <Image src={item.product.images[0]} alt={item.product.name} width={80} height={80} className="w-full h-full object-cover" />
                 </div>
 
                 {/* Details */}
@@ -145,3 +144,5 @@ export function CartDrawer() {
     </>
   );
 }
+
+

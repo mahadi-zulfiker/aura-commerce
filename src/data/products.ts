@@ -54,7 +54,7 @@ export const products: Product[] = [
     price: 1199,
     originalPrice: 1399,
     category: "Smartphones",
-    brand: "VOLT Tech",
+    brand: "Aura Labs",
     images: [
       "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80",
       "https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=800&q=80",
@@ -125,7 +125,7 @@ export const products: Product[] = [
     price: 2499,
     originalPrice: 2799,
     category: "Laptops",
-    brand: "VOLT Tech",
+    brand: "Aura Labs",
     images: [
       "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80",
       "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&q=80",
@@ -160,7 +160,7 @@ export const products: Product[] = [
     description: "Your ultimate health and fitness companion. Advanced health sensors, always-on display, and seamless integration with your devices.",
     price: 449,
     category: "Wearables",
-    brand: "VOLT Tech",
+    brand: "Aura Labs",
     images: [
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
       "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=800&q=80",
@@ -320,4 +320,4 @@ export const products: Product[] = [
   },
 ];
 
-export const brands = ["VOLT Tech", "SoundWave", "GamePro", "ViewMax", "DataVault"];
+export const brands = ["Aura Labs", "SoundWave", "GamePro", "ViewMax", "DataVault"];

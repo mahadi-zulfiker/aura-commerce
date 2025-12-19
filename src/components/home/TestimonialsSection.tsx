@@ -1,3 +1,4 @@
+﻿import Image from "next/image";
 import { Star, Quote } from "lucide-react";
 
 const testimonials = [
@@ -6,7 +7,7 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Tech Enthusiast",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "VOLT has completely transformed my tech setup. The quality of products and customer service is unmatched. My new headphones are absolutely incredible!",
+    content: "Aura Commerce has completely transformed my tech setup. The curation and support are unmatched. My new headphones are absolutely incredible!",
     rating: 5,
     product: "Studio Pro Wireless Headphones",
   },
@@ -15,7 +16,7 @@ const testimonials = [
     name: "Marcus Johnson",
     role: "Professional Gamer",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
-    content: "As a competitive gamer, I need reliable gear. The gaming controller from VOLT has the best response time I've ever experienced. Worth every penny!",
+    content: "As a competitive gamer, I need reliable gear. The controller from Aura has the best response time I've ever experienced. Worth every penny!",
     rating: 5,
     product: "Pro Gaming Controller",
   },
@@ -24,7 +25,7 @@ const testimonials = [
     name: "Emily Rodriguez",
     role: "Content Creator",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The UltraBook Pro handles all my video editing without breaking a sweat. Fast shipping and the packaging was premium. Highly recommend VOLT!",
+    content: "The UltraBook Pro handles all my video editing without breaking a sweat. Fast shipping and premium packaging. Highly recommend Aura!",
     rating: 5,
     product: "UltraBook Pro 16",
   },
@@ -32,7 +33,7 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 lg:py-24 bg-volt-surface/30 overflow-hidden">
+    <section className="py-16 lg:py-24 bg-aura-surface/60 overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
@@ -74,11 +75,7 @@ export function TestimonialsSection() {
 
               {/* Author */}
               <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                <img
-                  src={testimonial.avatar}
-                  alt={testimonial.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
-                />
+                <Image src={testimonial.avatar} alt={testimonial.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border-2 border-primary/30" />
                 <div>
                   <p className="font-medium text-sm">{testimonial.name}</p>
                   <p className="text-xs text-muted-foreground">{testimonial.role}</p>
@@ -111,3 +108,5 @@ export function TestimonialsSection() {
     </section>
   );
 }
+
+

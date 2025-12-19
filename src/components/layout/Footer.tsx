@@ -1,12 +1,13 @@
-import { Link } from "react-router-dom";
-import { Zap, Mail, MapPin, Phone, Github, Twitter, Instagram, Youtube } from "lucide-react";
+﻿import Link from "next/link";
+import Image from "next/image";
+import { Mail, MapPin, Phone, Github, Twitter, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { categories } from "@/data/products";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/50 bg-volt-surface/50">
+    <footer className="border-t border-border/50 bg-aura-surface/60">
       {/* Newsletter Section */}
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-12 lg:py-16">
@@ -36,14 +37,17 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-volt-purple shadow-glow">
-                <Zap className="w-6 h-6 text-primary-foreground" />
+            <Link href="/" className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/20 border border-primary/20 shadow-glow">
+                <Image src="/logo.svg" alt="Aura Commerce" width={24} height={24} />
               </div>
-              <span className="text-2xl font-display font-bold">VOLT</span>
+              <span className="text-2xl font-display font-bold">
+                <span className="gradient-text">Aura</span>{" "}
+                <span className="text-foreground/80">Commerce</span>
+              </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
-              Premium electronics for the modern lifestyle. Experience innovation at its finest.
+              Curated tech essentials with a calm, modern edge. Designed for work, play, and everything between.
             </p>
             <div className="flex gap-4">
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -68,7 +72,7 @@ export function Footer() {
               {categories.map((category) => (
                 <li key={category.id}>
                   <Link
-                    to={`/products?category=${category.slug}`}
+                    href={`/products?category=${category.slug}`}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
                   >
                     {category.name}
@@ -83,22 +87,22 @@ export function Footer() {
             <h4 className="font-display font-semibold mb-4">Company</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link to="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Blog
                 </Link>
               </li>
@@ -110,22 +114,22 @@ export function Footer() {
             <h4 className="font-display font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link to="/shipping" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/shipping" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Shipping
                 </Link>
               </li>
               <li>
-                <Link to="/returns" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/returns" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Returns
                 </Link>
               </li>
               <li>
-                <Link to="/warranty" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/warranty" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   Warranty
                 </Link>
               </li>
@@ -142,7 +146,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>hello@volt.store</span>
+                <span>hello@auracommerce.com</span>
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="h-4 w-4 text-primary" />
@@ -158,13 +162,13 @@ export function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              © 2024 VOLT. All rights reserved.
+              (c) 2024 Aura Commerce. All rights reserved.
             </p>
             <div className="flex gap-6">
-              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Terms of Service
               </Link>
             </div>
@@ -174,3 +178,8 @@ export function Footer() {
     </footer>
   );
 }
+
+
+
+
+

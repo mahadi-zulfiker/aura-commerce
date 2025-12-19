@@ -19,11 +19,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-muted text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // VOLT custom variants
-        glow: "bg-primary text-primary-foreground shadow-glow hover:shadow-[0_0_80px_hsl(185_100%_50%/0.5)] hover:scale-[1.02] transition-all duration-300",
+        // AURA custom variants
+        glow: "bg-primary text-primary-foreground shadow-glow hover:shadow-[0_0_80px_hsl(var(--aura-teal)/0.45)] hover:scale-[1.02] transition-all duration-300",
         accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/25 hover:shadow-accent/40",
-        glass: "bg-volt-glass/80 backdrop-blur-xl border border-border/50 text-foreground hover:bg-volt-surface-hover hover:border-primary/40",
-        hero: "bg-gradient-to-r from-primary to-volt-purple text-primary-foreground font-semibold shadow-glow hover:shadow-[0_0_80px_hsl(185_100%_50%/0.6)] hover:scale-[1.03] transition-all duration-300",
+        glass: "bg-aura-glass/80 backdrop-blur-xl border border-border/50 text-foreground hover:bg-aura-surface-hover hover:border-primary/40",
+        hero: "bg-gradient-to-r from-primary via-aura-sky to-accent text-primary-foreground font-semibold shadow-glow hover:shadow-[0_0_80px_hsl(var(--aura-teal)/0.55)] hover:scale-[1.03] transition-all duration-300",
         "hero-outline": "border-2 border-primary/50 text-foreground hover:bg-primary/10 hover:border-primary backdrop-blur-sm",
       },
       size: {

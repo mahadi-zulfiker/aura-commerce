@@ -19,8 +19,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "system-ui", "sans-serif"],
-        body: ["Inter", "system-ui", "sans-serif"],
+        display: ["Sora", "system-ui", "sans-serif"],
+        body: ["Manrope", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -66,16 +66,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // VOLT custom colors
-        volt: {
-          cyan: "hsl(var(--volt-cyan))",
-          "cyan-glow": "hsl(var(--volt-cyan-glow))",
-          amber: "hsl(var(--volt-amber))",
-          "amber-glow": "hsl(var(--volt-amber-glow))",
-          purple: "hsl(var(--volt-purple))",
-          surface: "hsl(var(--volt-surface))",
-          "surface-hover": "hsl(var(--volt-surface-hover))",
-          glass: "hsl(var(--volt-glass))",
+        // AURA custom colors
+        aura: {
+          teal: "hsl(var(--aura-teal))",
+          "teal-glow": "hsl(var(--aura-teal-glow))",
+          amber: "hsl(var(--aura-amber))",
+          "amber-glow": "hsl(var(--aura-amber-glow))",
+          sky: "hsl(var(--aura-sky))",
+          ink: "hsl(var(--aura-ink))",
+          sand: "hsl(var(--aura-sand))",
+          surface: "hsl(var(--aura-surface))",
+          "surface-hover": "hsl(var(--aura-surface-hover))",
+          glass: "hsl(var(--aura-glass))",
         },
       },
       borderRadius: {
@@ -87,8 +89,8 @@ export default {
         "3xl": "calc(var(--radius) + 16px)",
       },
       boxShadow: {
-        glow: "var(--shadow-glow-cyan)",
-        "glow-amber": "var(--shadow-glow-amber)",
+        glow: "var(--shadow-glow-primary)",
+        "glow-amber": "var(--shadow-glow-accent)",
         elevated: "var(--shadow-elevated)",
         card: "var(--shadow-card)",
       },
@@ -159,8 +161,8 @@ export default {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "volt-gradient": "linear-gradient(135deg, hsl(var(--volt-cyan)) 0%, hsl(var(--volt-purple)) 100%)",
-        "volt-gradient-subtle": "linear-gradient(135deg, hsl(var(--volt-cyan) / 0.1) 0%, hsl(var(--volt-purple) / 0.1) 100%)",
+        "aura-gradient": "linear-gradient(135deg, hsl(var(--aura-teal)) 0%, hsl(var(--aura-sky)) 60%, hsl(var(--aura-amber)) 100%)",
+        "aura-gradient-subtle": "linear-gradient(135deg, hsl(var(--aura-teal) / 0.1) 0%, hsl(var(--aura-sky) / 0.08) 60%, hsl(var(--aura-amber) / 0.08) 100%)",
       },
     },
   },
