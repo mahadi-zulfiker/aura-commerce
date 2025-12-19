@@ -23,6 +23,7 @@ import { useProduct } from "@/hooks/use-product";
 import { useProducts } from "@/hooks/use-products";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
+import { imageBlurDataUrl } from "@/lib/placeholder";
 import { toast } from "sonner";
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
@@ -133,6 +134,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL={imageBlurDataUrl}
               />
 
               {/* Badges */}
@@ -183,6 +186,8 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
                     width={80}
                     height={80}
                     className="w-full h-full object-cover"
+                    placeholder="blur"
+                    blurDataURL={imageBlurDataUrl}
                   />
                 </button>
               ))}

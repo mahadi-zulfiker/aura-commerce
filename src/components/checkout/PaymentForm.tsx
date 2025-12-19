@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export function PaymentForm({ amount }: { amount: number }) {
+export function PaymentForm({ amount, orderId }: { amount: number; orderId?: string }) {
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export function PaymentForm({ amount }: { amount: number }) {
             elements,
             confirmParams: {
                 // Make sure to change this to your payment completion page
-                return_url: `${window.location.origin}/checkout/success`,
+                return_url: `${window.location.origin}/checkout/success${orderId ? `?orderId=${orderId}` : ""}`,
             },
         });
 

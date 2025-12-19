@@ -1,32 +1,43 @@
-﻿import Link from "next/link";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Mail, MapPin, Phone, Github, Twitter, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Category } from "@/types/store";
+import { useCategories } from "@/hooks/use-categories";
+import { apiPost } from "@/lib/api";
+import { toast } from "sonner";
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+export function Footer() {
+  const { data: categories = [] } = useCategories();
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-async function getCategories(): Promise<Category[]> {
-  try {
-    const response = await fetch(`${apiBase}/categories`, {
-      cache: "no-store",
-    });
-    if (!response.ok) {
-      return [];
+  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!email) {
+      return;
     }
-    return (await response.json()) as Category[];
-  } catch {
-    return [];
-  }
-}
-
-export async function Footer() {
-  const categories = await getCategories();
+    setIsSubmitting(true);
+    try {
+      await apiPost("/newsletter/subscribe", { email });
+      toast.success("Subscribed", {
+        description: "You're now on the Aura Commerce newsletter.",
+      });
+      setEmail("");
+    } catch (error: any) {
+      toast.error("Subscription failed", {
+        description: error.message || "Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <footer className="border-t border-border/50 bg-aura-surface/60">
-      {/* Newsletter Section */}
       <div className="border-b border-border/50">
         <div className="container mx-auto px-4 py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -38,22 +49,24 @@ export async function Footer() {
                 Subscribe to get special offers, free giveaways, and new arrivals.
               </p>
             </div>
-            <div className="flex w-full lg:w-auto gap-2">
+            <form className="flex w-full lg:w-auto gap-2" onSubmit={handleSubscribe}>
               <Input
                 type="email"
                 placeholder="Enter your email"
                 className="max-w-sm"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
               />
-              <Button variant="glow">Subscribe</Button>
-            </div>
+              <Button variant="glow" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Joining..." : "Subscribe"}
+              </Button>
+            </form>
           </div>
         </div>
       </div>
 
-      {/* Main Footer */}
       <div className="container mx-auto px-4 py-12 lg:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Brand */}
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/20 border border-primary/20 shadow-glow">
@@ -83,7 +96,6 @@ export async function Footer() {
             </div>
           </div>
 
-          {/* Categories */}
           <div>
             <h4 className="font-display font-semibold mb-4">Categories</h4>
             <ul className="space-y-2">
@@ -100,10 +112,14 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
           <div>
             <h4 className="font-display font-semibold mb-4">Company</h4>
             <ul className="space-y-2">
+              <li>
+                <Link href="/shops" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  Shops
+                </Link>
+              </li>
               <li>
                 <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   About Us
@@ -127,7 +143,6 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="font-display font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
@@ -154,7 +169,6 @@ export async function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="font-display font-semibold mb-4">Contact</h4>
             <ul className="space-y-3">
@@ -175,7 +189,6 @@ export async function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-border/50">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -196,8 +209,3 @@ export async function Footer() {
     </footer>
   );
 }
-
-
-
-
-

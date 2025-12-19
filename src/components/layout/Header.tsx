@@ -15,7 +15,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { openCart, getTotalItems } = useCartStore();
+  const { openCart, getTotalItems, syncCart } = useCartStore();
   const { user, isAuthenticated } = useAuthStore();
   const totalItems = getTotalItems();
   const { data: categories = [] } = useCategories();
@@ -23,7 +23,10 @@ export function Header() {
   // Prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (isAuthenticated) {
+      syncCart();
+    }
+  }, [isAuthenticated, syncCart]);
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -42,6 +45,12 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             <Link
+              href="/shops"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Shops
+            </Link>
+            <Link
               href="/products"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -50,7 +59,7 @@ export function Header() {
             {categories.slice(0, 5).map((category) => (
               <Link
                 key={category.id}
-                href={`/ products ? category = ${category.slug} `}
+                href={`/products?category=${category.slug}`}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {category.name}
@@ -157,6 +166,13 @@ export function Header() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   All Products
+                </Link>
+                <Link
+                  href="/shops"
+                  className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Shops
                 </Link>
                 {categories.map((category) => (
                   <Link

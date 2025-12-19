@@ -1,5 +1,6 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import { Star, Quote } from "lucide-react";
+import { imageBlurDataUrl } from "@/lib/placeholder";
 
 const testimonials = [
   {
@@ -7,7 +8,8 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Tech Enthusiast",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
-    content: "Aura Commerce has completely transformed my tech setup. The curation and support are unmatched. My new headphones are absolutely incredible!",
+    content:
+      "Aura Commerce has completely transformed my tech setup. The curation and support are unmatched. My new headphones are absolutely incredible!",
     rating: 5,
     product: "Studio Pro Wireless Headphones",
   },
@@ -16,7 +18,8 @@ const testimonials = [
     name: "Marcus Johnson",
     role: "Professional Gamer",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
-    content: "As a competitive gamer, I need reliable gear. The controller from Aura has the best response time I've ever experienced. Worth every penny!",
+    content:
+      "As a competitive gamer, I need reliable gear. The controller from Aura has the best response time I've ever experienced. Worth every penny!",
     rating: 5,
     product: "Pro Gaming Controller",
   },
@@ -25,7 +28,8 @@ const testimonials = [
     name: "Emily Rodriguez",
     role: "Content Creator",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
-    content: "The UltraBook Pro handles all my video editing without breaking a sweat. Fast shipping and premium packaging. Highly recommend Aura!",
+    content:
+      "The UltraBook Pro handles all my video editing without breaking a sweat. Fast shipping and premium packaging. Highly recommend Aura!",
     rating: 5,
     product: "UltraBook Pro 16",
   },
@@ -75,10 +79,20 @@ export function TestimonialsSection() {
 
               {/* Author */}
               <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                <Image src={testimonial.avatar} alt={testimonial.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border-2 border-primary/30" />
+                <Image
+                  src={testimonial.avatar}
+                  alt={testimonial.name}
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
+                  placeholder="blur"
+                  blurDataURL={imageBlurDataUrl}
+                />
                 <div>
                   <p className="font-medium text-sm">{testimonial.name}</p>
-                  <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {testimonial.role}
+                  </p>
                 </div>
               </div>
             </div>
@@ -100,7 +114,9 @@ export function TestimonialsSection() {
               <p className="text-3xl lg:text-4xl font-display font-bold gradient-text">
                 {stat.value}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -108,5 +124,3 @@ export function TestimonialsSection() {
     </section>
   );
 }
-
-

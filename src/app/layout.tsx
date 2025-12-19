@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   description: "Curated tech essentials with a calm, modern edge.",
   metadataBase: new URL(siteUrl),
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/logo.svg",
+    icon: [{ url: "/icon.png", type: "image/png" }, { url: "/favicon.ico" }],
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
   },
   openGraph: {
     title: "Aura Commerce",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     siteName: "Aura Commerce",
     images: [
       {
-        url: "/logo.svg",
+        url: "/icon.png",
         width: 512,
         height: 512,
         alt: "Aura Commerce",

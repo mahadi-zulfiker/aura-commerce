@@ -43,13 +43,25 @@ export default function RegisterPage() {
             const res = await apiPost<{
                 user: any;
                 accessToken: string;
+                refreshToken?: string;
+                emailVerificationRequired?: boolean;
+                emailSent?: boolean;
             }>("auth/register", data);
 
-            login(res.user, res.accessToken);
-            toast.success("Account created!", {
-                description: "Welcome to Aura Commerce.",
-            });
-            router.push("/dashboard");
+            login(res.user, res.accessToken, res.refreshToken);
+            if (res.emailVerificationRequired) {
+                toast.success("Account created!", {
+                    description: res.emailSent
+                        ? "Check your inbox to verify your email."
+                        : "Verification token generated. Please verify your email.",
+                });
+                router.push(`/auth/verify-email?email=${encodeURIComponent(res.user.email)}`);
+            } else {
+                toast.success("Account created!", {
+                    description: "Welcome to Aura Commerce.",
+                });
+                router.push("/dashboard");
+            }
         } catch (error: any) {
             toast.error("Registration failed", {
                 description: error.message || "Something went wrong",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -15,18 +15,51 @@ export default function DashboardLayout({
 }) {
     const { isAuthenticated, user } = useAuthStore();
     const router = useRouter();
+    const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
+    const [hasHydrated, setHasHydrated] = useState(false);
+
+    useEffect(() => {
+        setHasHydrated(useAuthStore.persist.hasHydrated());
+        const unsubscribe = useAuthStore.persist.onFinishHydration(() => {
+            setHasHydrated(true);
+        });
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         setMounted(true);
+        if (!hasHydrated) {
+            return;
+        }
         if (!isAuthenticated) {
             // Simple client-side protection
             // Ideally should be middleware or server component check
-            router.push("/auth/login");
+            router.replace("/auth/login");
         }
-    }, [isAuthenticated, router]);
+        const role = user?.role ?? "USER";
+        const adminOnly = [
+            "/dashboard/users",
+            "/dashboard/vendors",
+            "/dashboard/all-products",
+            "/dashboard/all-orders",
+            "/dashboard/coupons",
+        ];
+        const vendorOnly = [
+            "/dashboard/products",
+            "/dashboard/vendor-orders",
+            "/dashboard/shop-settings",
+        ];
 
-    if (!mounted) {
+        if (adminOnly.includes(pathname) && role !== "ADMIN") {
+            router.push("/dashboard");
+        }
+        if (vendorOnly.includes(pathname) && role !== "VENDOR") {
+            router.push("/dashboard");
+        }
+    }, [hasHydrated, isAuthenticated, router, pathname, user?.role]);
+
+    if (!mounted || !hasHydrated) {
         return null; // or a loading spinner
     }
 

@@ -11,6 +11,7 @@ import { Product } from "@/types/store";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { imageBlurDataUrl } from "@/lib/placeholder";
 
 interface ProductCardProps {
   product: Product;
@@ -58,7 +59,15 @@ export function ProductCard({ product, className }: ProductCardProps) {
       <div className="product-card h-full flex flex-col">
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden rounded-t-xl bg-muted/30">
-          <Image src={isHovered ? hoverImage : primaryImage} alt={product.name} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+          <Image
+            src={isHovered ? hoverImage : primaryImage}
+            alt={product.name}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            placeholder="blur"
+            blurDataURL={imageBlurDataUrl}
+          />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">

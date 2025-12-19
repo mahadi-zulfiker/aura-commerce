@@ -15,8 +15,10 @@ async function getFeaturedProducts(): Promise<Product[]> {
     if (!response.ok) {
       return [];
     }
-    const payload = (await response.json()) as PaginatedResponse<Product>;
-    return payload.data;
+    const payload = (await response.json()) as { data?: PaginatedResponse<Product> } | PaginatedResponse<Product>;
+    const normalized =
+      "data" in payload && payload.data && "data" in payload.data ? payload.data : payload;
+    return normalized?.data ?? [];
   } catch {
     return [];
   }

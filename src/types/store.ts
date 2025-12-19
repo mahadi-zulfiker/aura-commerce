@@ -22,6 +22,7 @@ export interface Product {
 }
 
 export interface CartItem {
+  id?: string;
   product: Product;
   quantity: number;
 }
@@ -41,6 +42,28 @@ export interface Brand {
   logo?: string;
 }
 
+export interface Shop {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  logo?: string | null;
+  banner?: string | null;
+  rating: number;
+  totalReviews: number;
+  totalSales: number;
+  isFeatured?: boolean;
+  city?: string | null;
+  country?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  _count?: {
+    products: number;
+    followers: number;
+  };
+}
+
 export interface Review {
   id: string;
   productId: string;
@@ -54,7 +77,13 @@ export interface Review {
   helpful: number;
 }
 
-export type SortOption = 'featured' | 'newest' | 'price-low' | 'price-high' | 'rating';
+export type SortOption =
+  | "featured"
+  | "newest"
+  | "price-low"
+  | "price-high"
+  | "rating"
+  | "popularity";
 
 export interface FilterState {
   categories: string[];

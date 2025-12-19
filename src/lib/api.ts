@@ -11,26 +11,66 @@ export class ApiError extends Error {
   }
 }
 
+function getStoredAuth() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const storage = localStorage.getItem("aura-auth-storage");
+    if (!storage) {
+      return null;
+    }
+    const parsed = JSON.parse(storage);
+    return parsed?.state ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function setStoredAuth(accessToken: string, refreshToken?: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const storage = getStoredAuth();
+  if (!storage) {
+    return;
+  }
+
+  const nextState = {
+    ...storage,
+    accessToken,
+    refreshToken: refreshToken ?? storage.refreshToken,
+    isAuthenticated: Boolean(accessToken),
+  };
+
+  localStorage.setItem(
+    "aura-auth-storage",
+    JSON.stringify({
+      state: nextState,
+      version: 0,
+    }),
+  );
+}
+
+function clearStoredAuth() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  localStorage.removeItem("aura-auth-storage");
+}
+
 function getHeaders(extraHeaders?: Record<string, string>) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...extraHeaders,
   };
 
-  // Check localStorage manually since we might be outside React context
-  // Note: zustand persist saves to localStorage with a specific key structure
-  if (typeof window !== "undefined") {
-    try {
-      const storage = localStorage.getItem("aura-auth-storage");
-      if (storage) {
-        const { state } = JSON.parse(storage);
-        if (state?.accessToken) {
-          headers["Authorization"] = `Bearer ${state.accessToken}`;
-        }
-      }
-    } catch (e) {
-      // Ignored
-    }
+  const auth = getStoredAuth();
+  if (auth?.accessToken) {
+    headers["Authorization"] = `Bearer ${auth.accessToken}`;
   }
 
   return headers;
@@ -57,7 +97,69 @@ async function handleResponse<T>(response: Response): Promise<T> {
     return {} as T;
   }
 
-  return (await response.json()) as T;
+  const payload = (await response.json()) as {
+    success?: boolean;
+    data?: T;
+    message?: string;
+  };
+
+  if (payload && typeof payload === "object" && "success" in payload) {
+    return (payload.data ?? payload) as T;
+  }
+
+  return payload as T;
+}
+
+async function rawFetch(url: string, options: RequestInit) {
+  return fetch(url, options);
+}
+
+async function refreshToken() {
+  const auth = getStoredAuth();
+  if (!auth?.refreshToken) {
+    return false;
+  }
+
+  const response = await rawFetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refreshToken: auth.refreshToken }),
+  });
+
+  if (!response.ok) {
+    clearStoredAuth();
+    return false;
+  }
+
+  const data = await response.json();
+  const tokens = data?.data ?? data;
+  if (!tokens?.accessToken) {
+    return false;
+  }
+
+  setStoredAuth(tokens.accessToken, tokens.refreshToken);
+  return true;
+}
+
+async function fetchWithAuth(url: string, options: RequestInit) {
+  const response = await rawFetch(url, options);
+  if (response.status !== 401) {
+    return response;
+  }
+
+  const refreshed = await refreshToken();
+  if (!refreshed) {
+    return response;
+  }
+
+  const retryResponse = await rawFetch(url, {
+    ...options,
+    headers: getHeaders(options.headers as Record<string, string> | undefined),
+  });
+
+  return retryResponse;
 }
 
 export async function apiGet<T>(
@@ -76,7 +178,7 @@ export async function apiGet<T>(
     });
   }
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     headers: getHeaders(),
   });
 
@@ -87,7 +189,7 @@ export async function apiPost<T>(path: string, body: unknown) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = new URL(normalizedPath, API_URL);
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(body),
@@ -100,7 +202,7 @@ export async function apiPut<T>(path: string, body: unknown) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = new URL(normalizedPath, API_URL);
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "PUT",
     headers: getHeaders(),
     body: JSON.stringify(body),
@@ -113,7 +215,7 @@ export async function apiDelete<T>(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const url = new URL(normalizedPath, API_URL);
 
-  const response = await fetch(url.toString(), {
+  const response = await fetchWithAuth(url.toString(), {
     method: "DELETE",
     headers: getHeaders(),
   });

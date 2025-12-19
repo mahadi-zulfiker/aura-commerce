@@ -30,6 +30,7 @@ export default function LoginPage() {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm<LoginForm>({
         resolver: zodResolver(loginSchema),
@@ -41,9 +42,10 @@ export default function LoginPage() {
             const res = await apiPost<{
                 user: any;
                 accessToken: string;
+                refreshToken?: string;
             }>("auth/login", data);
 
-            login(res.user, res.accessToken);
+            login(res.user, res.accessToken, res.refreshToken);
             toast.success("Welcome back!", {
                 description: "You have successfully logged in.",
             });
@@ -107,6 +109,29 @@ export default function LoginPage() {
                     Login with Google
                 </Button>
             </form>
+            <div className="grid gap-3 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">Demo credentials</p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                    {[
+                        { label: "Admin", email: "admin@example.com", password: "Admin@123" },
+                        { label: "Vendor", email: "vendor@example.com", password: "Vendor@123" },
+                        { label: "User", email: "user@example.com", password: "User@123" },
+                    ].map((item) => (
+                        <Button
+                            key={item.label}
+                            variant="outline"
+                            type="button"
+                            onClick={() => {
+                                setValue("email", item.email);
+                                setValue("password", item.password);
+                            }}
+                            disabled={isLoading}
+                        >
+                            {item.label} Demo
+                        </Button>
+                    ))}
+                </div>
+            </div>
             <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link href="/auth/register" className="underline">

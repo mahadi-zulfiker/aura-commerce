@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Category } from "@/types/store";
+import { imageBlurDataUrl } from "@/lib/placeholder";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -13,7 +14,9 @@ async function getCategories(): Promise<Category[]> {
     if (!response.ok) {
       return [];
     }
-    return (await response.json()) as Category[];
+    const payload = (await response.json()) as { data?: Category[] } | Category[];
+    const data = Array.isArray(payload) ? payload : payload?.data;
+    return data ?? [];
   } catch {
     return [];
   }
@@ -55,7 +58,15 @@ export async function CategorySection() {
             >
               <div className="aspect-square relative overflow-hidden">
                 {/* Background Image */}
-                <Image src={category.image || "/placeholder.svg"} alt={category.name} fill sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <Image
+                  src={category.image || "/placeholder.svg"}
+                  alt={category.name}
+                  fill
+                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  placeholder="blur"
+                  blurDataURL={imageBlurDataUrl}
+                />
                 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />

@@ -20,6 +20,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: "price-low", label: "Price: Low to High" },
   { value: "price-high", label: "Price: High to Low" },
   { value: "rating", label: "Top Rated" },
+  { value: "popularity", label: "Most Popular" },
 ];
 
 export default function ProductsPage() {

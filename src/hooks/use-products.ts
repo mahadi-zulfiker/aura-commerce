@@ -8,6 +8,9 @@ export interface ProductsQueryParams {
   brand?: string;
   search?: string;
   sort?: SortOption;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
   page?: number;
   limit?: number;
 }
@@ -24,6 +27,9 @@ export function useProducts(
         brand: params.brand,
         search: params.search,
         sort: params.sort,
+        minPrice: params.minPrice,
+        maxPrice: params.maxPrice,
+        minRating: params.minRating,
         page: params.page,
         limit: params.limit,
       }),
