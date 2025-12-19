@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiGet, apiPatch } from "@/lib/api";
+import { ApiError, apiGet, apiPatch } from "@/lib/api";
 import { toast } from "sonner";
 
 const shopSchema = z.object({
@@ -22,6 +23,7 @@ const shopSchema = z.object({
 type ShopForm = z.infer<typeof shopSchema>;
 
 export default function ShopSettingsPage() {
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
   const {
@@ -34,16 +36,32 @@ export default function ShopSettingsPage() {
   });
 
   useEffect(() => {
-    apiGet<ShopForm>("/shops/me/profile").then((data) => {
-      reset({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        description: data.description ?? "",
-        website: data.website ?? "",
-      });
-    });
-  }, [reset]);
+    const loadShop = async () => {
+      try {
+        const data = await apiGet<ShopForm>("/shops/me/profile");
+        reset({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          description: data.description ?? "",
+          website: data.website ?? "",
+        });
+      } catch (error) {
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          toast.error("Session expired", {
+            description: "Please log in again to manage your shop.",
+          });
+          router.replace("/auth/login");
+          return;
+        }
+        toast.error("Unable to load shop profile", {
+          description: error instanceof Error ? error.message : "Please try again.",
+        });
+      }
+    };
+
+    loadShop();
+  }, [reset, router]);
 
   const onSubmit = async (values: ShopForm) => {
     setIsSaving(true);

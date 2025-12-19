@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet, apiPatch } from "@/lib/api";
 import { PaginatedResponse } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface AdminUser {
@@ -18,13 +19,34 @@ interface AdminUser {
 }
 
 export default function UsersPage() {
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
   const { data, refetch, isLoading } = useQuery({
-    queryKey: ["users", page],
-    queryFn: () => apiGet<PaginatedResponse<AdminUser>>("/users", { page, limit: 20 }),
+    queryKey: ["users", page, roleFilter, statusFilter],
+    queryFn: () =>
+      apiGet<PaginatedResponse<AdminUser>>("/users", {
+        page,
+        limit: 20,
+        role: roleFilter || undefined,
+        status: statusFilter || undefined,
+      }),
   });
 
   const users = data?.data ?? [];
+  const totalPages = data?.meta.totalPages ?? 1;
+
+  const filteredUsers = useMemo(() => {
+    if (!search) {
+      return users;
+    }
+    return users.filter(
+      (user) =>
+        user.email.toLowerCase().includes(search.toLowerCase()) ||
+        `${user.firstName ?? ""} ${user.lastName ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [search, users]);
 
   const updateStatus = async (id: string, status: string) => {
     await apiPatch(`/users/${id}/status`, { status });
@@ -44,13 +66,55 @@ export default function UsersPage() {
           <CardTitle>All users</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="grid gap-4 md:grid-cols-3 mb-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Search</label>
+              <Input
+                placeholder="Search by email or name"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Role</label>
+              <select
+                className="h-10 rounded-lg border border-border bg-muted/40 px-3 text-sm"
+                value={roleFilter}
+                onChange={(event) => {
+                  setRoleFilter(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">All roles</option>
+                <option value="USER">User</option>
+                <option value="VENDOR">Vendor</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <select
+                className="h-10 rounded-lg border border-border bg-muted/40 px-3 text-sm"
+                value={statusFilter}
+                onChange={(event) => {
+                  setStatusFilter(event.target.value);
+                  setPage(1);
+                }}
+              >
+                <option value="">All statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="SUSPENDED">Suspended</option>
+                <option value="PENDING">Pending</option>
+              </select>
+            </div>
+          </div>
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading users...</p>
-          ) : users.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <p className="text-sm text-muted-foreground">No users found.</p>
           ) : (
             <div className="space-y-4">
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <div
                   key={user.id}
                   className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border rounded-lg p-4"
@@ -77,6 +141,28 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {page} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

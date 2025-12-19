@@ -17,6 +17,8 @@ import {
     Store,
     Heart,
     History,
+    Tag,
+    BadgeCheck,
 } from "lucide-react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> { }
@@ -96,6 +98,16 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
             title: "Vendors",
             href: "/dashboard/vendors",
             icon: Store,
+        },
+        {
+            title: "Categories",
+            href: "/dashboard/categories",
+            icon: Tag,
+        },
+        {
+            title: "Brands",
+            href: "/dashboard/brands",
+            icon: BadgeCheck,
         },
         {
             title: "Products",

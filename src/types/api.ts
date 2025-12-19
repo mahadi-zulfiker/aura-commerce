@@ -15,6 +15,31 @@ export interface Order {
   orderStatus: string;
   paymentStatus: string;
   createdAt: string;
+  subtotal?: number;
+  tax?: number;
+  shippingCost?: number;
+  discount?: number;
+  couponCode?: string | null;
+  paymentMethod?: string;
+  address?: Address;
+  shop?: {
+    id: string;
+    name: string;
+    slug?: string;
+  } | null;
+  items?: OrderItem[];
+}
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  image?: string | null;
+  quantity: number;
+  price: number;
+  total: number;
+  variantInfo?: Record<string, unknown> | null;
 }
 
 export interface Address {

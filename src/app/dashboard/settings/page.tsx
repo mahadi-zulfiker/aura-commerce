@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiGet, apiPatch } from "@/lib/api";
+import { ApiError, apiGet, apiPatch } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function SettingsPage() {
   const { updateUser } = useAuthStore();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -35,15 +37,31 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    apiGet<ProfileForm>("/users/me").then((data) => {
-      reset({
-        firstName: data.firstName ?? "",
-        lastName: data.lastName ?? "",
-        phone: data.phone ?? "",
-        avatar: data.avatar ?? "",
-      });
-    });
-  }, [reset]);
+    const loadProfile = async () => {
+      try {
+        const data = await apiGet<ProfileForm>("/users/me");
+        reset({
+          firstName: data.firstName ?? "",
+          lastName: data.lastName ?? "",
+          phone: data.phone ?? "",
+          avatar: data.avatar ?? "",
+        });
+      } catch (error) {
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          toast.error("Session expired", {
+            description: "Please log in again to continue.",
+          });
+          router.replace("/auth/login");
+          return;
+        }
+        toast.error("Unable to load profile", {
+          description: error instanceof Error ? error.message : "Please try again.",
+        });
+      }
+    };
+
+    loadProfile();
+  }, [reset, router]);
 
   const onSubmit = async (values: ProfileForm) => {
     setIsLoading(true);

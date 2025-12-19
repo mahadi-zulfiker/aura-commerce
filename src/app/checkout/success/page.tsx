@@ -40,7 +40,7 @@ export default function CheckoutSuccessPage() {
       {orderNumber && (
         <div className="text-sm text-muted-foreground">
           Order <span className="font-semibold text-foreground">{orderNumber}</span>
-          {total !== null && <span className="ml-2">• ${total.toFixed(2)}</span>}
+          {total !== null && <span className="ml-2">- ${total.toFixed(2)}</span>}
         </div>
       )}
       <div className="flex gap-4">
