@@ -134,9 +134,11 @@ export function CartDrawer() {
             </div>
 
             {/* Checkout Button */}
-            <Button variant="glow" size="lg" className="w-full" onClick={closeCart}>
-              Proceed to Checkout
-              <ArrowRight className="h-4 w-4 ml-2" />
+            <Button variant="glow" size="lg" className="w-full" asChild onClick={closeCart}>
+              <Link href="/checkout">
+                Proceed to Checkout
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
             </Button>
           </div>
         )}
