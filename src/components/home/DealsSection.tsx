@@ -2,10 +2,28 @@
 import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { products } from "@/data/products";
+import { PaginatedResponse } from "@/types/api";
+import { Product } from "@/types/store";
 
-export function DealsSection() {
-  // Get products with discounts
+const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+async function getDealProducts(): Promise<Product[]> {
+  try {
+    const response = await fetch(`${apiBase}/products?sort=price-low&limit=8`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return [];
+    }
+    const payload = (await response.json()) as PaginatedResponse<Product>;
+    return payload.data;
+  } catch {
+    return [];
+  }
+}
+
+export async function DealsSection() {
+  const products = await getDealProducts();
   const dealProducts = products.filter((p) => p.originalPrice).slice(0, 2);
 
   return (
@@ -41,7 +59,7 @@ export function DealsSection() {
                 <div className="flex flex-col md:flex-row h-full">
                   {/* Image */}
                   <div className="relative w-full md:w-1/2 aspect-square md:aspect-[4/3] overflow-hidden">
-                    <Image src={product.images[0]} alt={product.name} fill sizes="(min-width: 768px) 50vw, 100vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <Image src={product.images[0] || "/placeholder.svg"} alt={product.name} fill sizes="(min-width: 768px) 50vw, 100vw" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/50 md:block hidden" />
                   </div>
 

@@ -1,9 +1,27 @@
 ﻿import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { categories } from "@/data/products";
+import { Category } from "@/types/store";
 
-export function CategorySection() {
+const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await fetch(`${apiBase}/categories`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return [];
+    }
+    return (await response.json()) as Category[];
+  } catch {
+    return [];
+  }
+}
+
+export async function CategorySection() {
+  const categories = await getCategories();
+
   return (
     <section className="py-16 lg:py-24">
       <div className="container mx-auto px-4">
@@ -37,7 +55,7 @@ export function CategorySection() {
             >
               <div className="aspect-square relative overflow-hidden">
                 {/* Background Image */}
-                <Image src={category.image} alt={category.name} fill sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <Image src={category.image || "/placeholder.svg"} alt={category.name} fill sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />

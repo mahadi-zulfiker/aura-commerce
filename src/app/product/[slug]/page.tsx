@@ -19,7 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/product/ProductCard";
-import { products } from "@/data/products";
+import { useProduct } from "@/hooks/use-product";
+import { useProducts } from "@/hooks/use-products";
 import { useCartStore } from "@/store/cart";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -30,9 +31,24 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem, openCart } = useCartStore();
 
-  const product = products.find((p) => p.slug === params.slug);
+  const { data: product, isLoading, isError } = useProduct(params.slug);
+  const relatedCategory = product?.categorySlug || product?.category?.toLowerCase();
+  const { data: relatedResponse } = useProducts(
+    { category: relatedCategory, limit: 8, sort: "featured" },
+    { enabled: Boolean(relatedCategory) },
+  );
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center text-muted-foreground">Loading product...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isError || !product) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <main className="flex-1 flex items-center justify-center">
@@ -47,13 +63,14 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
     );
   }
 
+  const galleryImages = product.images.length > 0 ? product.images : ["/placeholder.svg"];
+
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
+  const relatedProducts =
+    relatedResponse?.data.filter((item) => item.id !== product.id).slice(0, 4) ?? [];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -83,7 +100,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </Link>
             <span className="text-muted-foreground">/</span>
             <Link
-              href={`/products?category=${product.category.toLowerCase()}`}
+              href={`/products?category=${product.categorySlug || product.category.toLowerCase()}`}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {product.category}
@@ -111,7 +128,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             {/* Main Image */}
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted/30 border border-border/50">
               <Image
-                src={product.images[selectedImage]}
+                src={galleryImages[selectedImage]}
                 alt={product.name}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
@@ -149,7 +166,7 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
 
             {/* Thumbnails */}
             <div className="flex gap-3">
-              {product.images.map((image, index) => (
+              {galleryImages.map((image, index) => (
                 <button
                   key={image}
                   className={cn(
@@ -291,30 +308,34 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             </div>
 
             {/* Key Features */}
-            <div className="pt-6 border-t border-border/50">
-              <h3 className="font-display font-semibold mb-4">Key Features</h3>
-              <ul className="space-y-2">
-                {product.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
-                    <Check className="h-4 w-4 text-primary shrink-0" />
-                    <span className="text-sm text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {product.features.length > 0 && (
+              <div className="pt-6 border-t border-border/50">
+                <h3 className="font-display font-semibold mb-4">Key Features</h3>
+                <ul className="space-y-2">
+                  {product.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3">
+                      <Check className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-sm text-muted-foreground">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Specifications */}
-            <div className="pt-6 border-t border-border/50">
-              <h3 className="font-display font-semibold mb-4">Specifications</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{key}</span>
-                    <span className="text-sm font-medium">{value}</span>
-                  </div>
-                ))}
+            {Object.keys(product.specifications).length > 0 && (
+              <div className="pt-6 border-t border-border/50">
+                <h3 className="font-display font-semibold mb-4">Specifications</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} className="flex flex-col">
+                      <span className="text-xs text-muted-foreground">{key}</span>
+                      <span className="text-sm font-medium">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

@@ -2,9 +2,28 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product/ProductCard";
-import { products } from "@/data/products";
+import { PaginatedResponse } from "@/types/api";
+import { Product } from "@/types/store";
 
-export function FeaturedProducts() {
+const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+async function getFeaturedProducts(): Promise<Product[]> {
+  try {
+    const response = await fetch(`${apiBase}/products?sort=featured&limit=8`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return [];
+    }
+    const payload = (await response.json()) as PaginatedResponse<Product>;
+    return payload.data;
+  } catch {
+    return [];
+  }
+}
+
+export async function FeaturedProducts() {
+  const products = await getFeaturedProducts();
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
 
   return (

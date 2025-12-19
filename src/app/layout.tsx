@@ -6,22 +6,24 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: {
     default: "Aura Commerce",
     template: "%s | Aura Commerce",
   },
   description: "Curated tech essentials with a calm, modern edge.",
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
     apple: "/logo.svg",
   },
   openGraph: {
     title: "Aura Commerce",
     description: "Curated tech essentials with a calm, modern edge.",
-    url: "http://localhost:3000",
+    url: siteUrl,
     siteName: "Aura Commerce",
     images: [
       {

@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal, Grid3X3, LayoutList, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/product/ProductCard";
-import { products, categories, brands } from "@/data/products";
+import { useProducts } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
+import { useBrands } from "@/hooks/use-brands";
 import { SortOption } from "@/types/store";
 import { cn } from "@/lib/utils";
 
@@ -29,52 +32,23 @@ export default function ProductsPage() {
   const selectedCategory = searchParams.get("category") || "";
   const selectedBrand = searchParams.get("brand") || "";
   const searchQuery = searchParams.get("q") || "";
-  const sortBy = (searchParams.get("sort") as SortOption) || "featured";
+  const sortParam = searchParams.get("sort");
+  const sortBy =
+    sortOptions.find((option) => option.value === sortParam)?.value ?? "featured";
 
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  const { data: categories = [] } = useCategories();
+  const { data: brands = [] } = useBrands();
+  const { data: productsResponse, isLoading, isError } = useProducts({
+    category: selectedCategory || undefined,
+    brand: selectedBrand || undefined,
+    search: searchQuery || undefined,
+    sort: sortBy,
+    page: 1,
+    limit: 12,
+  });
 
-    if (selectedCategory) {
-      result = result.filter(
-        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase(),
-      );
-    }
-
-    if (selectedBrand) {
-      result = result.filter(
-        (p) => p.brand.toLowerCase() === selectedBrand.toLowerCase(),
-      );
-    }
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query) ||
-          p.brand.toLowerCase().includes(query),
-      );
-    }
-
-    switch (sortBy) {
-      case "newest":
-        result = result.filter((p) => p.isNew).concat(result.filter((p) => !p.isNew));
-        break;
-      case "price-low":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-high":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      default:
-        result = result.filter((p) => p.isFeatured).concat(result.filter((p) => !p.isFeatured));
-    }
-
-    return result;
-  }, [selectedCategory, selectedBrand, searchQuery, sortBy]);
+  const products = productsResponse?.data ?? [];
+  const totalProducts = productsResponse?.meta.total ?? 0;
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -104,7 +78,9 @@ export default function ProductsPage() {
               ? categories.find((c) => c.slug === selectedCategory)?.name || "Products"
               : "All Products"}
           </h1>
-          <p className="text-muted-foreground">{filteredProducts.length} products found</p>
+          <p className="text-muted-foreground">
+            {isLoading ? "Loading products..." : `${totalProducts} products found`}
+          </p>
         </div>
       </div>
 
@@ -214,7 +190,8 @@ export default function ProductsPage() {
                       className="cursor-pointer"
                       onClick={() => updateFilter("brand", "")}
                     >
-                      {selectedBrand}
+                      {brands.find((brand) => brand.slug === selectedBrand)?.name ??
+                        selectedBrand}
                       <X className="h-3 w-3 ml-1" />
                     </Badge>
                   )}
@@ -255,16 +232,21 @@ export default function ProductsPage() {
               <div className="space-y-2">
                 {brands.map((brand) => (
                   <button
-                    key={brand}
+                    key={brand.id}
                     className={cn(
                       "flex items-center w-full px-3 py-2 rounded-lg text-sm transition-colors",
-                      selectedBrand.toLowerCase() === brand.toLowerCase()
+                      selectedBrand === brand.slug
                         ? "bg-primary/10 text-primary border border-primary/30"
                         : "hover:bg-muted",
                     )}
-                    onClick={() => updateFilter("brand", selectedBrand === brand ? "" : brand)}
+                    onClick={() =>
+                      updateFilter(
+                        "brand",
+                        selectedBrand === brand.slug ? "" : brand.slug,
+                      )
+                    }
                   >
-                    {brand}
+                    {brand.name}
                   </button>
                 ))}
               </div>
@@ -273,7 +255,31 @@ export default function ProductsPage() {
 
           {/* Products Grid */}
           <div className="flex-1">
-            {filteredProducts.length === 0 ? (
+            {isError ? (
+              <div className="text-center py-16">
+                <p className="text-lg font-medium mb-2">Unable to load products</p>
+                <p className="text-muted-foreground mb-4">
+                  Please check your connection and try again.
+                </p>
+              </div>
+            ) : isLoading ? (
+              <div
+                className={cn(
+                  "grid gap-6",
+                  viewMode === "grid"
+                    ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+                    : "grid-cols-1",
+                )}
+              >
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={`skeleton-${index}`} className="space-y-4">
+                    <Skeleton className="aspect-square w-full rounded-xl" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/3" />
+                  </div>
+                ))}
+              </div>
+            ) : products.length === 0 ? (
               <div className="text-center py-16">
                 <p className="text-lg font-medium mb-2">No products found</p>
                 <p className="text-muted-foreground mb-4">
@@ -292,7 +298,7 @@ export default function ProductsPage() {
                     : "grid-cols-1",
                 )}
               >
-                {filteredProducts.map((product, index) => (
+                {products.map((product, index) => (
                   <div
                     key={product.id}
                     className="animate-fade-in"

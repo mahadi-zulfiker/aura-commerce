@@ -65,7 +65,7 @@ export function CartDrawer() {
               >
                 {/* Image */}
                 <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                  <Image src={item.product.images[0]} alt={item.product.name} width={80} height={80} className="w-full h-full object-cover" />
+                  <Image src={item.product.images[0] || "/placeholder.svg"} alt={item.product.name} width={80} height={80} className="w-full h-full object-cover" />
                 </div>
 
                 {/* Details */}

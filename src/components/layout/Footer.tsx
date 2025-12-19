@@ -3,9 +3,27 @@ import Image from "next/image";
 import { Mail, MapPin, Phone, Github, Twitter, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { categories } from "@/data/products";
+import { Category } from "@/types/store";
 
-export function Footer() {
+const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await fetch(`${apiBase}/categories`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return [];
+    }
+    return (await response.json()) as Category[];
+  } catch {
+    return [];
+  }
+}
+
+export async function Footer() {
+  const categories = await getCategories();
+
   return (
     <footer className="border-t border-border/50 bg-aura-surface/60">
       {/* Newsletter Section */}

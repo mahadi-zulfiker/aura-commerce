@@ -7,7 +7,7 @@ import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/cart";
-import { categories } from "@/data/products";
+import { useCategories } from "@/hooks/use-categories";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -15,6 +15,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { openCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
+  const { data: categories = [] } = useCategories();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">

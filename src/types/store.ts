@@ -4,9 +4,11 @@ export interface Product {
   slug: string;
   description: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   category: string;
+  categorySlug?: string;
   brand: string;
+  brandSlug?: string;
   images: string[];
   rating: number;
   reviewCount: number;
@@ -30,6 +32,13 @@ export interface Category {
   slug: string;
   image: string;
   productCount: number;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string;
 }
 
 export interface Review {
