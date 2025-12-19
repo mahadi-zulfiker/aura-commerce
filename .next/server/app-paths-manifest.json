@@ -1,8 +1,3 @@
 {
-  "/checkout/page": "app/checkout/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/shops/[slug]/page": "app/shops/[slug]/page.js",
-  "/product/[slug]/page": "app/product/[slug]/page.js",
-  "/dashboard/settings/page": "app/dashboard/settings/page.js",
-  "/auth/login/page": "app/auth/login/page.js"
+  "/_not-found/page": "app/_not-found/page.js"
 }

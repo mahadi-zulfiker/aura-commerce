@@ -1,1 +1,6 @@
-{}
+{
+  "lib\\api.ts -> @/store/auth": {
+    "id": "lib\\api.ts -> @/store/auth",
+    "files": []
+  }
+}

@@ -96,7 +96,7 @@ export function PaymentForm({ amount, orderId }: { amount: number; orderId?: str
                         Processing...
                     </>
                 ) : (
-                    `Pay $${amount}`
+                    `Pay $${amount.toFixed(2)}`
                 )}
             </Button>
             {message && <div id="payment-message" className="text-sm text-red-500 text-center">{message}</div>}

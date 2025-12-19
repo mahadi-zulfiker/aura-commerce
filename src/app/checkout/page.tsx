@@ -21,6 +21,8 @@ import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const SHIPPING_THRESHOLD = 100;
+const BASE_SHIPPING_COST = 9.99;
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -35,6 +37,16 @@ const checkoutSchema = z.object({
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
+type OrderSummary = {
+  id: string;
+  subtotal: number;
+  shippingCost: number;
+  tax: number;
+  discount: number;
+  total: number;
+  couponCode?: string | null;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
@@ -43,8 +55,22 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
 
-  const amount = useMemo(() => getTotalPrice(), [getTotalPrice, items]);
+  const cartSubtotal = useMemo(() => getTotalPrice(), [getTotalPrice, items]);
+  const estimatedShipping = useMemo(
+    () => (cartSubtotal >= SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_COST),
+    [cartSubtotal],
+  );
+  const estimatedTax = 0;
+  const estimatedTotal = cartSubtotal + estimatedShipping + estimatedTax;
+
+  const displaySubtotal = orderSummary?.subtotal ?? cartSubtotal;
+  const displayShipping = orderSummary?.shippingCost ?? estimatedShipping;
+  const displayTax = orderSummary?.tax ?? estimatedTax;
+  const displayDiscount = orderSummary?.discount ?? 0;
+  const displayTotal = orderSummary?.total ?? estimatedTotal;
 
   const {
     register,
@@ -83,12 +109,14 @@ export default function CheckoutPage() {
         isDefault: true,
       });
 
+      const trimmedCoupon = couponCode.trim();
       const orderResponse = await apiPost<{
-        order: { id: string; total: number };
+        order: OrderSummary;
         clientSecret: string | null;
       }>("/orders", {
         addressId: address.id,
         paymentMethod: "CARD",
+        couponCode: trimmedCoupon.length ? trimmedCoupon : undefined,
       });
 
       if (!orderResponse.clientSecret) {
@@ -97,6 +125,7 @@ export default function CheckoutPage() {
 
       setOrderId(orderResponse.order.id);
       setClientSecret(orderResponse.clientSecret);
+      setOrderSummary(orderResponse.order);
       toast.success("Order created", {
         description: "Confirm your payment to complete the purchase.",
       });
@@ -119,7 +148,7 @@ export default function CheckoutPage() {
     appearance,
   };
 
-  if (amount <= 0) {
+  if (!clientSecret && cartSubtotal <= 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center min-h-[50vh] flex flex-col items-center justify-center">
         <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
@@ -214,7 +243,7 @@ export default function CheckoutPage() {
             <CardContent>
               {clientSecret ? (
                 <Elements options={options} stripe={stripePromise}>
-                  <PaymentForm amount={amount} orderId={orderId} />
+                  <PaymentForm amount={displayTotal} orderId={orderId} />
                 </Elements>
               ) : errorMessage ? (
                 <div className="text-center p-4 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">
@@ -242,20 +271,39 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>${amount.toFixed(2)}</span>
+                <span>${displaySubtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Shipping</span>
-                <span>$0.00</span>
+                <span>Shipping (free over ${SHIPPING_THRESHOLD})</span>
+                <span>${displayShipping.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Tax</span>
-                <span>$0.00</span>
+                <span>${displayTax.toFixed(2)}</span>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="couponCode">Coupon code</Label>
+                <Input
+                  id="couponCode"
+                  placeholder="SAVE20"
+                  value={couponCode}
+                  onChange={(event) => setCouponCode(event.target.value)}
+                  disabled={isLoading || Boolean(clientSecret)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Discounts apply after you continue to payment.
+                </p>
+              </div>
+              {displayDiscount > 0 && (
+                <div className="flex justify-between text-sm text-emerald-600">
+                  <span>Discount</span>
+                  <span>-${displayDiscount.toFixed(2)}</span>
+                </div>
+              )}
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${amount.toFixed(2)}</span>
+                <span>${displayTotal.toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>

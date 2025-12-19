@@ -54,12 +54,36 @@ function setStoredAuth(accessToken: string, refreshToken?: string) {
   );
 }
 
-function clearStoredAuth() {
+async function syncAuthStoreTokens(accessToken: string, refreshToken?: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const { useAuthStore } = await import("@/store/auth");
+  const state = useAuthStore.getState();
+  useAuthStore.setState({
+    accessToken,
+    refreshToken: refreshToken ?? state.refreshToken,
+    isAuthenticated: Boolean(accessToken),
+    user: state.user,
+  });
+}
+
+async function clearAuthStore() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const { useAuthStore } = await import("@/store/auth");
+  useAuthStore.getState().logout();
+}
+
+async function clearStoredAuth() {
   if (typeof window === "undefined") {
     return;
   }
 
   localStorage.removeItem("aura-auth-storage");
+  await clearAuthStore();
 }
 
 function getHeaders(extraHeaders?: Record<string, string>) {
@@ -120,16 +144,23 @@ async function refreshToken() {
     return false;
   }
 
-  const response = await rawFetch(`${API_URL}/auth/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ refreshToken: auth.refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await rawFetch(`${API_URL}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken: auth.refreshToken }),
+    });
+  } catch {
+    return false;
+  }
 
   if (!response.ok) {
-    clearStoredAuth();
+    if (response.status === 401 || response.status === 403) {
+      await clearStoredAuth();
+    }
     return false;
   }
 
@@ -140,6 +171,7 @@ async function refreshToken() {
   }
 
   setStoredAuth(tokens.accessToken, tokens.refreshToken);
+  await syncAuthStoreTokens(tokens.accessToken, tokens.refreshToken);
   return true;
 }
 
@@ -204,6 +236,19 @@ export async function apiPut<T>(path: string, body: unknown) {
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(body),
+  });
+
+  return handleResponse<T>(response);
+}
+
+export async function apiPatch<T>(path: string, body: unknown) {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = new URL(normalizedPath, API_URL);
+
+  const response = await fetchWithAuth(url.toString(), {
+    method: "PATCH",
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
