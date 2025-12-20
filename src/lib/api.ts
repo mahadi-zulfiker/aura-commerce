@@ -11,64 +11,6 @@ export class ApiError extends Error {
   }
 }
 
-function getStoredAuth() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const storage = localStorage.getItem("aura-auth-storage");
-    if (!storage) {
-      return null;
-    }
-    const parsed = JSON.parse(storage);
-    return parsed?.state ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function setStoredAuth(accessToken: string, refreshToken?: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const storage = getStoredAuth();
-  if (!storage) {
-    return;
-  }
-
-  const nextState = {
-    ...storage,
-    accessToken,
-    refreshToken: refreshToken ?? storage.refreshToken,
-    isAuthenticated: Boolean(accessToken),
-  };
-
-  localStorage.setItem(
-    "aura-auth-storage",
-    JSON.stringify({
-      state: nextState,
-      version: 0,
-    }),
-  );
-}
-
-async function syncAuthStoreTokens(accessToken: string, refreshToken?: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const { useAuthStore } = await import("@/store/auth");
-  const state = useAuthStore.getState();
-  useAuthStore.setState({
-    accessToken,
-    refreshToken: refreshToken ?? state.refreshToken,
-    isAuthenticated: Boolean(accessToken),
-    user: state.user,
-  });
-}
-
 async function clearAuthStore() {
   if (typeof window === "undefined") {
     return;
@@ -77,7 +19,7 @@ async function clearAuthStore() {
   useAuthStore.getState().logout();
 }
 
-async function clearStoredAuth() {
+export async function clearStoredAuth() {
   if (typeof window === "undefined") {
     return;
   }
@@ -86,16 +28,27 @@ async function clearStoredAuth() {
   await clearAuthStore();
 }
 
+export async function logoutUser() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    await rawFetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+    });
+  } catch {
+    // Ignore network failures on logout.
+  }
+
+  await clearStoredAuth();
+}
+
 function getHeaders(extraHeaders?: Record<string, string>) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...extraHeaders,
   };
-
-  const auth = getStoredAuth();
-  if (auth?.accessToken) {
-    headers["Authorization"] = `Bearer ${auth.accessToken}`;
-  }
 
   return headers;
 }
@@ -113,6 +66,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
       typeof errorData === "object" && errorData && "message" in errorData
         ? String((errorData as { message?: string }).message)
         : "Request failed";
+    if (response.status === 401 || response.status === 403) {
+      await clearStoredAuth();
+    }
     throw new ApiError(message, response.status, errorData);
   }
 
@@ -135,15 +91,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 async function rawFetch(url: string, options: RequestInit) {
-  return fetch(url, options);
+  return fetch(url, { credentials: "include", ...options });
 }
 
-async function refreshToken() {
-  const auth = getStoredAuth();
-  if (!auth?.refreshToken) {
-    return false;
-  }
-
+export async function refreshAuthToken() {
   let response: Response;
   try {
     response = await rawFetch(`${API_URL}/auth/refresh`, {
@@ -151,7 +102,6 @@ async function refreshToken() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ refreshToken: auth.refreshToken }),
     });
   } catch {
     return false;
@@ -164,14 +114,6 @@ async function refreshToken() {
     return false;
   }
 
-  const data = await response.json();
-  const tokens = data?.data ?? data;
-  if (!tokens?.accessToken) {
-    return false;
-  }
-
-  setStoredAuth(tokens.accessToken, tokens.refreshToken);
-  await syncAuthStoreTokens(tokens.accessToken, tokens.refreshToken);
   return true;
 }
 
@@ -181,14 +123,13 @@ async function fetchWithAuth(url: string, options: RequestInit) {
     return response;
   }
 
-  const refreshed = await refreshToken();
+  const refreshed = await refreshAuthToken();
   if (!refreshed) {
     return response;
   }
 
   const retryResponse = await rawFetch(url, {
     ...options,
-    headers: getHeaders(options.headers as Record<string, string> | undefined),
   });
 
   return retryResponse;
@@ -211,6 +152,7 @@ export async function apiGet<T>(
   }
 
   const response = await fetchWithAuth(url.toString(), {
+    credentials: "include",
     headers: getHeaders(),
   });
 
@@ -223,6 +165,7 @@ export async function apiPost<T>(path: string, body: unknown) {
 
   const response = await fetchWithAuth(url.toString(), {
     method: "POST",
+    credentials: "include",
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
@@ -236,6 +179,7 @@ export async function apiPut<T>(path: string, body: unknown) {
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PUT",
+    credentials: "include",
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
@@ -249,6 +193,7 @@ export async function apiPatch<T>(path: string, body: unknown) {
 
   const response = await fetchWithAuth(url.toString(), {
     method: "PATCH",
+    credentials: "include",
     headers: getHeaders(),
     body: JSON.stringify(body),
   });
@@ -262,6 +207,7 @@ export async function apiDelete<T>(path: string) {
 
   const response = await fetchWithAuth(url.toString(), {
     method: "DELETE",
+    credentials: "include",
     headers: getHeaders(),
   });
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 const orderStatuses = [
@@ -31,6 +32,9 @@ export default function OrdersPage() {
   const [paymentFilter, setPaymentFilter] = useState("");
   const [search, setSearch] = useState("");
   const [actionId, setActionId] = useState<string | null>(null);
+  const [trackingDrafts, setTrackingDrafts] = useState<
+    Record<string, { carrier: string; trackingNumber: string }>
+  >({});
 
   const { data, isLoading, refetch } = useOrders(page, 10);
 
@@ -74,6 +78,47 @@ export default function OrdersPage() {
       refetch();
     } catch (error: any) {
       toast.error("Refund failed", {
+        description: error.message || "Please try again.",
+      });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const updateTracking = async (orderId: string) => {
+    const draft = trackingDrafts[orderId];
+    if (!draft?.carrier && !draft?.trackingNumber) {
+      toast.error("Tracking details required", {
+        description: "Provide a carrier or tracking number.",
+      });
+      return;
+    }
+
+    setActionId(orderId);
+    try {
+      await apiPatch(`/orders/${orderId}/tracking`, {
+        carrier: draft?.carrier || undefined,
+        trackingNumber: draft?.trackingNumber || undefined,
+      });
+      toast.success("Tracking updated");
+      refetch();
+    } catch (error: any) {
+      toast.error("Unable to update tracking", {
+        description: error.message || "Please try again.",
+      });
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    setActionId(orderId);
+    try {
+      await apiPost(`/orders/${orderId}/cancel`, {});
+      toast.success("Order cancelled");
+      refetch();
+    } catch (error: any) {
+      toast.error("Unable to cancel order", {
         description: error.message || "Please try again.",
       });
     } finally {
@@ -148,7 +193,7 @@ export default function OrdersPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-sm text-muted-foreground">Loading orders...</div>
+            <OrdersSkeleton />
           ) : filteredOrders.length === 0 ? (
             <div className="text-sm text-muted-foreground">No orders match these filters.</div>
           ) : (
@@ -157,6 +202,14 @@ export default function OrdersPage() {
                 const itemCount = order.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
                 const canRefund =
                   role === "ADMIN" && order.paymentStatus === "PAID" && order.orderStatus !== "REFUNDED";
+                const canCancel =
+                  role === "USER" &&
+                  ["PENDING", "CONFIRMED", "PROCESSING"].includes(order.orderStatus) &&
+                  order.paymentStatus !== "PAID";
+                const trackingDraft = trackingDrafts[order.id] ?? {
+                  carrier: order.carrier ?? "",
+                  trackingNumber: order.trackingNumber ?? "",
+                };
                 return (
                   <div key={order.id} className="border rounded-xl p-4 space-y-4">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -198,6 +251,13 @@ export default function OrdersPage() {
                             <span className="text-foreground font-medium">Coupon:</span> {order.couponCode}
                           </p>
                         )}
+                        {order.trackingNumber && (
+                          <p>
+                            <span className="text-foreground font-medium">Tracking:</span>{" "}
+                            {order.carrier ? `${order.carrier} · ` : ""}
+                            {order.trackingNumber}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2 text-sm text-muted-foreground">
                         <div className="flex justify-between">
@@ -237,33 +297,86 @@ export default function OrdersPage() {
                     ) : null}
 
                     {role !== "USER" && (
-                      <div className="flex flex-wrap gap-3 items-center">
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="text-muted-foreground">Update status</span>
-                          <select
-                            className="h-9 rounded-lg border border-border bg-background px-3 text-sm"
-                            value={order.orderStatus}
-                            onChange={(event) => updateStatus(order.id, event.target.value)}
-                            disabled={actionId === order.id}
-                          >
-                            {statusOptions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </select>
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-3 items-center">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground">Update status</span>
+                            <select
+                              className="h-9 rounded-lg border border-border bg-background px-3 text-sm"
+                              value={order.orderStatus}
+                              onChange={(event) => updateStatus(order.id, event.target.value)}
+                              disabled={actionId === order.id}
+                            >
+                              {statusOptions.map((status) => (
+                                <option key={status} value={status}>
+                                  {status}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {canRefund && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => refundOrder(order.id)}
+                              disabled={actionId === order.id}
+                            >
+                              Refund
+                            </Button>
+                          )}
                         </div>
-                        {canRefund && (
+                        <div className="rounded-lg border border-border/60 p-3 space-y-3">
+                          <p className="text-xs uppercase text-muted-foreground">Tracking</p>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <Input
+                              placeholder="Carrier"
+                              value={trackingDraft.carrier}
+                              onChange={(event) =>
+                                setTrackingDrafts((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    ...trackingDraft,
+                                    carrier: event.target.value,
+                                  },
+                                }))
+                              }
+                              disabled={actionId === order.id}
+                            />
+                            <Input
+                              placeholder="Tracking number"
+                              value={trackingDraft.trackingNumber}
+                              onChange={(event) =>
+                                setTrackingDrafts((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    ...trackingDraft,
+                                    trackingNumber: event.target.value,
+                                  },
+                                }))
+                              }
+                              disabled={actionId === order.id}
+                            />
+                          </div>
                           <Button
-                            variant="outline"
                             size="sm"
-                            onClick={() => refundOrder(order.id)}
+                            onClick={() => updateTracking(order.id)}
                             disabled={actionId === order.id}
                           >
-                            Refund
+                            Save tracking
                           </Button>
-                        )}
+                        </div>
                       </div>
+                    )}
+
+                    {canCancel && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => cancelOrder(order.id)}
+                        disabled={actionId === order.id}
+                      >
+                        Cancel order
+                      </Button>
                     )}
                   </div>
                 );
@@ -294,6 +407,54 @@ export default function OrdersPage() {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+function OrdersSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="border rounded-xl p-4 space-y-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-6 w-20" />
+            </div>
+            <div className="space-y-2 md:text-right">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-40" />
+              <Skeleton className="h-3 w-48" />
+              <Skeleton className="h-3 w-36" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-muted/30 p-3 space-y-2">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-40" />
+            <Skeleton className="h-3 w-36" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

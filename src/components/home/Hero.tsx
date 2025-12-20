@@ -53,9 +53,8 @@ export function Hero() {
           {/* Tag */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8 animate-fade-in">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-white">Aura Essentials 2024</span>
+            <span className="text-sm font-medium text-white">Aura Essentials 2025</span>
           </div>
-
           {/* Headline */}
           <h1
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-6 animate-fade-in-up"

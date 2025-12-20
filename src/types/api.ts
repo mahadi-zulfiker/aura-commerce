@@ -15,12 +15,15 @@ export interface Order {
   orderStatus: string;
   paymentStatus: string;
   createdAt: string;
+  deliveredAt?: string | null;
   subtotal?: number;
   tax?: number;
   shippingCost?: number;
   discount?: number;
   couponCode?: string | null;
   paymentMethod?: string;
+  trackingNumber?: string | null;
+  carrier?: string | null;
   address?: Address;
   shop?: {
     id: string;
@@ -53,4 +56,38 @@ export interface Address {
   country: string;
   isDefault: boolean;
   label?: string | null;
+}
+
+export interface StoreSettings {
+  shippingThreshold: number;
+  baseShippingCost: number;
+  taxRate: number;
+  returnWindowDays: number;
+}
+
+export interface ReturnItem {
+  id: string;
+  quantity: number;
+  orderItem: OrderItem;
+}
+
+export interface ReturnRequest {
+  id: string;
+  status: string;
+  reason: string;
+  note?: string | null;
+  createdAt: string;
+  approvedAt?: string | null;
+  rejectedAt?: string | null;
+  receivedAt?: string | null;
+  refundedAt?: string | null;
+  cancelledAt?: string | null;
+  order: Order;
+  items: ReturnItem[];
+  user?: {
+    id: string;
+    email?: string;
+    firstName?: string | null;
+    lastName?: string | null;
+  } | null;
 }

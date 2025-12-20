@@ -8,22 +8,22 @@ import { Elements } from "@stripe/react-stripe-js";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PaymentForm } from "@/components/checkout/PaymentForm";
-import { apiPost } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
+import type { StoreSettings } from "@/types/api";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-const SHIPPING_THRESHOLD = 100;
-const BASE_SHIPPING_COST = 9.99;
-
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   phone: z.string().min(6, "Phone number is required"),
@@ -49,7 +49,7 @@ type OrderSummary = {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
   const { items, getTotalPrice } = useCartStore();
   const [clientSecret, setClientSecret] = useState("");
   const [orderId, setOrderId] = useState("");
@@ -58,12 +58,21 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
 
+  const { data: checkoutSettings } = useQuery({
+    queryKey: ["checkout-settings"],
+    queryFn: () => apiGet<StoreSettings>("/settings/checkout"),
+  });
+
+  const shippingThreshold = checkoutSettings?.shippingThreshold ?? 100;
+  const baseShippingCost = checkoutSettings?.baseShippingCost ?? 9.99;
+  const taxRate = checkoutSettings?.taxRate ?? 0;
+
   const cartSubtotal = useMemo(() => getTotalPrice(), [getTotalPrice, items]);
   const estimatedShipping = useMemo(
-    () => (cartSubtotal >= SHIPPING_THRESHOLD ? 0 : BASE_SHIPPING_COST),
-    [cartSubtotal],
+    () => (cartSubtotal >= shippingThreshold ? 0 : baseShippingCost),
+    [baseShippingCost, cartSubtotal, shippingThreshold],
   );
-  const estimatedTax = 0;
+  const estimatedTax = useMemo(() => cartSubtotal * taxRate, [cartSubtotal, taxRate]);
   const estimatedTotal = cartSubtotal + estimatedShipping + estimatedTax;
 
   const displaySubtotal = orderSummary?.subtotal ?? cartSubtotal;
@@ -82,10 +91,21 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
     if (!isAuthenticated) {
       router.push("/auth/login?redirect=/checkout");
     }
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
+
+  if (!hasHydrated) {
+    return <CheckoutSkeleton />;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const onSubmit = async (data: CheckoutForm) => {
     if (!items.length) {
@@ -173,7 +193,7 @@ export default function CheckoutPage() {
             </CardHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="fullName">Full name</Label>
                     <Input id="fullName" placeholder="Max Robinson" {...register("fullName")} />
@@ -196,7 +216,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-red-500">{errors.street.message}</p>
                   )}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="city">City</Label>
                     <Input id="city" placeholder="Dhaka" {...register("city")} />
@@ -212,7 +232,7 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="zipCode">Zip Code</Label>
                     <Input id="zipCode" placeholder="1207" {...register("zipCode")} />
@@ -264,7 +284,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <Card className="sticky top-24">
+          <Card className="lg:sticky lg:top-24">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
@@ -274,11 +294,11 @@ export default function CheckoutPage() {
                 <span>${displaySubtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Shipping (free over ${SHIPPING_THRESHOLD})</span>
+                <span>Shipping (free over ${shippingThreshold})</span>
                 <span>${displayShipping.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Tax</span>
+                <span>Tax {taxRate ? `(${(taxRate * 100).toFixed(1)}%)` : ""}</span>
                 <span>${displayTax.toFixed(2)}</span>
               </div>
               <div className="space-y-2">
@@ -305,6 +325,72 @@ export default function CheckoutPage() {
                 <span>Total</span>
                 <span>${displayTotal.toFixed(2)}</span>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CheckoutSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <Skeleton className="h-8 w-40" />
+      <div className="grid lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-3 space-y-8">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-4 w-56" />
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <Skeleton className="h-10 w-full" />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end">
+              <Skeleton className="h-10 w-40" />
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-5 w-36" />
+              <Skeleton className="h-4 w-60" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-40 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-2">
+          <Card className="lg:sticky lg:top-24">
+            <CardHeader>
+              <Skeleton className="h-5 w-36" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-3 w-48" />
+              </div>
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-6 w-full" />
             </CardContent>
           </Card>
         </div>

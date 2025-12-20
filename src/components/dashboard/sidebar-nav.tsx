@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthStore } from "@/store/auth";
+import { logoutUser } from "@/lib/api";
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -19,13 +20,15 @@ import {
     History,
     Tag,
     BadgeCheck,
+    RotateCcw,
+    SlidersHorizontal,
 } from "lucide-react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function SidebarNav({ className, ...props }: SidebarNavProps) {
     const pathname = usePathname();
-    const { user, logout } = useAuthStore();
+    const { user } = useAuthStore();
 
     const role = user?.role || "USER";
 
@@ -47,6 +50,11 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
             title: "Orders",
             href: "/dashboard/orders",
             icon: History,
+        },
+        {
+            title: "Returns",
+            href: "/dashboard/returns",
+            icon: RotateCcw,
         },
         {
             title: "Wishlist",
@@ -75,6 +83,11 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
             title: "Orders",
             href: "/dashboard/vendor-orders",
             icon: ShoppingBag,
+        },
+        {
+            title: "Returns",
+            href: "/dashboard/returns",
+            icon: RotateCcw,
         },
         {
             title: "Shop Settings",
@@ -120,9 +133,19 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
             icon: ShoppingBag,
         },
         {
+            title: "Returns",
+            href: "/dashboard/returns",
+            icon: RotateCcw,
+        },
+        {
             title: "Coupons",
             href: "/dashboard/coupons",
             icon: CreditCard,
+        },
+        {
+            title: "Store Settings",
+            href: "/dashboard/store-settings",
+            icon: SlidersHorizontal,
         },
     ];
 
@@ -164,8 +187,9 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
                     variant="ghost"
                     className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
                     onClick={() => {
-                        logout();
-                        window.location.href = '/auth/login';
+                        logoutUser().finally(() => {
+                            window.location.href = '/auth/login';
+                        });
                     }}
                 >
                     <LogOut className="mr-2 h-4 w-4" />

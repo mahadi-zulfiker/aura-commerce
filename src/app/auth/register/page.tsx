@@ -42,13 +42,11 @@ export default function RegisterPage() {
         try {
             const res = await apiPost<{
                 user: any;
-                accessToken: string;
-                refreshToken?: string;
                 emailVerificationRequired?: boolean;
                 emailSent?: boolean;
             }>("auth/register", data);
 
-            login(res.user, res.accessToken, res.refreshToken);
+            login(res.user);
             if (res.emailVerificationRequired) {
                 toast.success("Account created!", {
                     description: res.emailSent
@@ -80,7 +78,7 @@ export default function RegisterPage() {
                 </p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                     <div className="grid gap-2">
                         <Label htmlFor="first-name">First name</Label>
                         <Input

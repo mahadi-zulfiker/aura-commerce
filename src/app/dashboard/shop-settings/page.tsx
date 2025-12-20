@@ -95,7 +95,7 @@ export default function ShopSettingsPage() {
               <Input id="name" {...register("name")} />
               {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" {...register("email")} />

@@ -41,11 +41,9 @@ export default function LoginPage() {
         try {
             const res = await apiPost<{
                 user: any;
-                accessToken: string;
-                refreshToken?: string;
             }>("auth/login", data);
 
-            login(res.user, res.accessToken, res.refreshToken);
+            login(res.user);
             toast.success("Welcome back!", {
                 description: "You have successfully logged in.",
             });

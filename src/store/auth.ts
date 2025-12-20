@@ -12,10 +12,10 @@ export interface User {
 
 interface AuthState {
     user: User | null;
-    accessToken: string | null;
-    refreshToken: string | null;
     isAuthenticated: boolean;
-    login: (user: User, accessToken: string, refreshToken?: string) => void;
+    hasHydrated: boolean;
+    setHasHydrated: (hydrated: boolean) => void;
+    login: (user: User) => void;
     logout: () => void;
     updateUser: (user: Partial<User>) => void;
 }
@@ -24,13 +24,12 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
             user: null,
-            accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
-            login: (user, accessToken, refreshToken) =>
-                set({ user, accessToken, refreshToken: refreshToken ?? null, isAuthenticated: true }),
+            hasHydrated: false,
+            setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
+            login: (user) => set({ user, isAuthenticated: true }),
             logout: () =>
-                set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false }),
+                set({ user: null, isAuthenticated: false }),
             updateUser: (updates) =>
                 set((state) => ({
                     user: state.user ? { ...state.user, ...updates } : null,
@@ -38,6 +37,13 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'aura-auth-storage',
+            partialize: (state) => ({
+                user: state.user,
+                isAuthenticated: state.isAuthenticated,
+            }),
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
         }
     )
 );

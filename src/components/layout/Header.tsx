@@ -26,7 +26,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { openCart, getTotalItems, syncCart } = useCartStore();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated } = useAuthStore();
   const totalItems = getTotalItems();
   const { data: categories = [] } = useCategories();
   const isHome = pathname === "/";
@@ -138,7 +138,7 @@ export function Header() {
 
             {/* User Actions */}
             <div className="hidden sm:flex items-center gap-2">
-              {isMounted && isAuthenticated ? (
+              {isMounted && hasHydrated && isAuthenticated ? (
                 <Button variant="ghost" size="sm" asChild className={ghostButtonClass}>
                   <Link href="/dashboard" className="flex items-center gap-2">
                     <User className="h-5 w-5" />
@@ -222,7 +222,7 @@ export function Header() {
                   </div>
 
                   <div className="border-t border-border/60 px-6 py-4">
-                    {isMounted && isAuthenticated ? (
+                    {isMounted && hasHydrated && isAuthenticated ? (
                       <div className="flex flex-col gap-3">
                         <SheetClose asChild>
                           <Link
