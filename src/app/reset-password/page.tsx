@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,8 @@ const resetSchema = z.object({
 
 type ResetForm = z.infer<typeof resetSchema>;
 
-export default function ResetPasswordPage() {
+// Move the main component logic here
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tokenParam = searchParams.get("token");
@@ -80,5 +81,13 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

@@ -14,9 +14,14 @@ async function getCategories(): Promise<Category[]> {
     if (!response.ok) {
       return [];
     }
-    const payload = (await response.json()) as { data?: Category[] } | Category[];
-    const data = Array.isArray(payload) ? payload : payload?.data;
-    return data ?? [];
+    const payload = await response.json();
+    if (payload && Array.isArray(payload.data)) {
+      return payload.data;
+    }
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return [];
   } catch {
     return [];
   }
@@ -67,10 +72,10 @@ export async function CategorySection() {
                   placeholder="blur"
                   blurDataURL={imageBlurDataUrl}
                 />
-                
+
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-                
+
                 {/* Content */}
                 <div className="absolute inset-0 flex flex-col items-center justify-end p-4 text-center">
                   <h3 className="font-display font-semibold text-lg mb-1 group-hover:text-primary transition-colors">

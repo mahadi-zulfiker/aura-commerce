@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ApiError, apiDelete, apiGet, apiPost, apiPut } from "@/lib/api";
+import { ApiError, apiDelete, apiGet, apiPost, apiPut, apiPatch } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { CartItem, Product } from "@/types/store";
 
@@ -124,7 +124,7 @@ export const useCartStore = create<CartState>()(
           }
 
           try {
-            const cart = await apiPut<{ items: CartItem[] }>(`/cart/items/${item.id}`, {
+            const cart = await apiPatch<{ items: CartItem[] }>(`/cart/items/${item.id}`, {
               quantity,
             });
             set({ items: cart.items });

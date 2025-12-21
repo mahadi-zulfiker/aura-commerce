@@ -9,24 +9,29 @@ const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const response = await fetch(`${apiBase}/products?sort=featured&limit=8`, {
+    const response = await fetch(`${apiBase}/products?featured=1&limit=8`, {
       cache: "no-store",
     });
     if (!response.ok) {
       return [];
     }
-    const payload = (await response.json()) as { data?: PaginatedResponse<Product> } | PaginatedResponse<Product>;
-    const normalized =
-      "data" in payload && payload.data && "data" in payload.data ? payload.data : payload;
-    return normalized?.data ?? [];
-  } catch {
+    const payload = await response.json();
+    if (payload && Array.isArray(payload.data)) {
+      return payload.data;
+    }
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return [];
+  } catch (error) {
+    console.error("Failed to fetch featured products:", error);
     return [];
   }
 }
 
 export async function FeaturedProducts() {
   const products = await getFeaturedProducts();
-  const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <section className="py-16 lg:py-24 bg-aura-surface/60">

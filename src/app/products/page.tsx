@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal, Grid3X3, LayoutList, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: "popularity", label: "Most Popular" },
 ];
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -153,7 +153,7 @@ export default function ProductsPage() {
               "w-64 shrink-0 space-y-6",
               "hidden lg:block",
               isFilterOpen &&
-                "fixed inset-0 z-50 bg-background p-6 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:p-0 block",
+              "fixed inset-0 z-50 bg-background p-6 lg:relative lg:inset-auto lg:z-auto lg:bg-transparent lg:p-0 block",
             )}
           >
             {isFilterOpen && (
@@ -314,5 +314,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading products...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

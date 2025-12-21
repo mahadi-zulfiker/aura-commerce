@@ -22,6 +22,8 @@ import {
     BadgeCheck,
     RotateCcw,
     SlidersHorizontal,
+    BarChart,
+    Bell,
 } from "lucide-react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> { }
@@ -33,6 +35,11 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
     const role = user?.role || "USER";
 
     const commonItems = [
+        {
+            title: "Notifications",
+            href: "/dashboard/notifications",
+            icon: Bell,
+        },
         {
             title: "Settings",
             href: "/dashboard/settings",
@@ -98,9 +105,14 @@ export function SidebarNav({ className, ...props }: SidebarNavProps) {
 
     const adminItems = [
         {
-            title: "Analytics",
+            title: "Overview",
             href: "/dashboard",
             icon: LayoutDashboard,
+        },
+        {
+            title: "Analytics",
+            href: "/dashboard/analytics",
+            icon: BarChart,
         },
         {
             title: "Users",

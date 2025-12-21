@@ -18,6 +18,7 @@ import {
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
 import { useCategories } from "@/hooks/use-categories";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -136,7 +137,12 @@ export function Header() {
               )}
             </Button>
 
-            {/* User Actions */}
+            {/* Notifications - Visible on all screens if authenticated */}
+            {isMounted && hasHydrated && isAuthenticated && (
+              <NotificationBell />
+            )}
+
+            {/* User Actions - Desktop Only */}
             <div className="hidden sm:flex items-center gap-2">
               {isMounted && hasHydrated && isAuthenticated ? (
                 <Button variant="ghost" size="sm" asChild className={ghostButtonClass}>

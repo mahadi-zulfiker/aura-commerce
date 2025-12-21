@@ -16,10 +16,14 @@ async function getDealProducts(): Promise<Product[]> {
     if (!response.ok) {
       return [];
     }
-    const payload = (await response.json()) as { data?: PaginatedResponse<Product> } | PaginatedResponse<Product>;
-    const normalized =
-      "data" in payload && payload.data && "data" in payload.data ? payload.data : payload;
-    return normalized?.data ?? [];
+    const payload = await response.json();
+    if (payload && Array.isArray(payload.data)) {
+      return payload.data;
+    }
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+    return [];
   } catch {
     return [];
   }
@@ -79,15 +83,15 @@ export async function DealsSection() {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 w-fit mb-4">
                       <span className="text-sm font-bold text-accent">{discount}% OFF</span>
                     </div>
-                    
+
                     <span className="text-sm text-primary font-medium uppercase tracking-wider">
                       {product.brand}
                     </span>
-                    
+
                     <h3 className="text-xl lg:text-2xl font-display font-bold mt-2 mb-3 group-hover:text-primary transition-colors">
                       {product.name}
                     </h3>
-                    
+
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                       {product.description}
                     </p>

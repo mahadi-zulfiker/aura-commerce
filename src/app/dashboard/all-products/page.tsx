@@ -8,6 +8,7 @@ import { Product } from "@/types/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FeaturedToggle } from "@/components/product/FeaturedToggle";
 
 export default function AllProductsPage() {
   const [page, setPage] = useState(1);
@@ -84,8 +85,11 @@ export default function AllProductsPage() {
                     <p className="font-medium">{product.name}</p>
                     <p className="text-sm text-muted-foreground">{product.category}</p>
                   </div>
-                  <div className="text-sm text-muted-foreground">Stock: {product.stockCount}</div>
-                  <div className="font-medium">${product.price.toFixed(2)}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm text-muted-foreground mr-4">Stock: {product.stockCount}</div>
+                    <FeaturedToggle productId={product.id} isFeatured={product.isFeatured} />
+                    <div className="font-medium w-20 text-right">${product.price.toFixed(2)}</div>
+                  </div>
                 </div>
               ))}
             </div>
