@@ -33,6 +33,10 @@ function ProductsContent() {
   const selectedCategory = searchParams.get("category") || "";
   const selectedBrand = searchParams.get("brand") || "";
   const searchQuery = searchParams.get("q") || "";
+  const minPrice = searchParams.get("minPrice") || "";
+  const maxPrice = searchParams.get("maxPrice") || "";
+  const page = parseInt(searchParams.get("page") || "1");
+
   const sortParam = searchParams.get("sort");
   const sortBy =
     sortOptions.find((option) => option.value === sortParam)?.value ?? "featured";
@@ -43,8 +47,10 @@ function ProductsContent() {
     category: selectedCategory || undefined,
     brand: selectedBrand || undefined,
     search: searchQuery || undefined,
+    minPrice: minPrice ? parseFloat(minPrice) : undefined,
+    maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
     sort: sortBy,
-    page: 1,
+    page: page,
     limit: 12,
   });
 
@@ -58,6 +64,10 @@ function ProductsContent() {
     } else {
       params.delete(key);
     }
+    // Reset page on filter change
+    if (key !== "page") {
+      params.delete("page");
+    }
 
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);
@@ -67,7 +77,7 @@ function ProductsContent() {
     router.push(pathname);
   };
 
-  const hasActiveFilters = selectedCategory || selectedBrand || searchQuery;
+  const hasActiveFilters = selectedCategory || selectedBrand || searchQuery || minPrice || maxPrice;
 
   return (
     <div className="bg-background">
@@ -196,9 +206,51 @@ function ProductsContent() {
                       <X className="h-3 w-3 ml-1" />
                     </Badge>
                   )}
+                  {minPrice && (
+                    <Badge
+                      variant="category"
+                      className="cursor-pointer"
+                      onClick={() => updateFilter("minPrice", "")}
+                    >
+                      Min: ${minPrice}
+                      <X className="h-3 w-3 ml-1" />
+                    </Badge>
+                  )}
+                  {maxPrice && (
+                    <Badge
+                      variant="category"
+                      className="cursor-pointer"
+                      onClick={() => updateFilter("maxPrice", "")}
+                    >
+                      Max: ${maxPrice}
+                      <X className="h-3 w-3 ml-1" />
+                    </Badge>
+                  )}
                 </div>
               </div>
             )}
+
+            {/* Price Range */}
+            <div>
+              <h4 className="font-medium mb-3">Price Range</h4>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  className="h-9 px-2 text-sm"
+                  value={minPrice}
+                  onChange={(e) => updateFilter("minPrice", e.target.value)}
+                />
+                <span className="text-muted-foreground text-sm">-</span>
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  className="h-9 px-2 text-sm"
+                  value={maxPrice}
+                  onChange={(e) => updateFilter("maxPrice", e.target.value)}
+                />
+              </div>
+            </div>
 
             {/* Categories */}
             <div>
@@ -308,6 +360,41 @@ function ProductsContent() {
                     <ProductCard product={product} />
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!isLoading && productsResponse?.meta && productsResponse.meta.totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12 pb-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => updateFilter("page", (page - 1).toString())}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: productsResponse.meta.totalPages }).map((_, i) => (
+                    <Button
+                      key={i + 1}
+                      variant={page === i + 1 ? "default" : "ghost"}
+                      size="sm"
+                      className="w-9 h-9"
+                      onClick={() => updateFilter("page", (i + 1).toString())}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= productsResponse.meta.totalPages}
+                  onClick={() => updateFilter("page", (page + 1).toString())}
+                >
+                  Next
+                </Button>
               </div>
             )}
           </div>

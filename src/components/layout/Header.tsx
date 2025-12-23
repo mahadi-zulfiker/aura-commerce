@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -19,6 +19,15 @@ import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
 import { useCategories } from "@/hooks/use-categories";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -78,18 +87,58 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link href="/shops" className={linkClass}>
+          <nav className="hidden lg:flex items-center gap-6">
+            <Link href="/" className={cn(linkClass, pathname === "/" && "text-primary font-bold")}>
+              Home
+            </Link>
+            <Link href="/products" className={cn(linkClass, pathname === "/products" && "text-primary font-bold")}>
+              All-Products
+            </Link>
+            <Link href="/shops" className={cn(linkClass, pathname === "/shops" && "text-primary font-bold")}>
               Shops
             </Link>
-            <Link href="/products" className={linkClass}>
-              All Products
+
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger
+                    className={cn(
+                      "bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent h-auto p-0",
+                      linkClass
+                    )}
+                  >
+                    Categories
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-background border rounded-xl shadow-xl">
+                      {categories.map((category) => (
+                        <NavigationMenuLink asChild key={category.id}>
+                          <Link
+                            href={`/products?category=${category.slug}`}
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">{category.name}</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Explore our collection of {category.name.toLowerCase()}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <Link href="/about" className={cn(linkClass, pathname === "/about" && "text-primary font-bold")}>
+              About
             </Link>
-            {categories.slice(0, 5).map((category) => (
-              <Link key={category.id} href={`/products?category=${category.slug}`} className={linkClass}>
-                {category.name}
-              </Link>
-            ))}
+            <Link href="/contact" className={cn(linkClass, pathname === "/contact" && "text-primary font-bold")}>
+              Contact
+            </Link>
+            <Link href="/blog" className={cn(linkClass, pathname === "/blog" && "text-primary font-bold")}>
+              Blog
+            </Link>
           </nav>
 
           {/* Search, Cart, User */}

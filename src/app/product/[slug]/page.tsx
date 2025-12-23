@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { useProduct } from "@/hooks/use-product";
 import { useProducts } from "@/hooks/use-products";
 import { useCartStore } from "@/store/cart";
@@ -237,119 +238,60 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               )}
             </div>
 
-            {/* Description */}
-            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
-
-            {/* Stock Status */}
-            {product.inStock ? (
-              <div className="flex items-center gap-2 text-green-400">
-                <Check className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  In Stock ({product.stockCount} available)
-                </span>
-              </div>
-            ) : (
-              <Badge variant="out-of-stock">Out of Stock</Badge>
-            )}
-
-            {/* Quantity & Add to Cart */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 p-1 rounded-lg bg-muted/50 border border-border">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 sm:h-10 sm:w-10"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 sm:h-10 sm:w-10"
-                  onClick={() => setQuantity(Math.min(product.stockCount, quantity + 1))}
-                  disabled={quantity >= product.stockCount}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <Button
-                variant="glow"
-                size="lg"
-                className="flex-1"
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-              >
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Add to Cart
-              </Button>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-1 gap-4 pt-6 border-t border-border/50 sm:grid-cols-3">
-              <div className="flex flex-col items-center text-center p-4 rounded-xl bg-muted/30">
-                <Truck className="h-6 w-6 text-primary mb-2" />
-                <span className="text-sm font-medium">Free Shipping</span>
-                <span className="text-xs text-muted-foreground">On orders $100+</span>
-              </div>
-              <div className="flex flex-col items-center text-center p-4 rounded-xl bg-muted/30">
-                <Shield className="h-6 w-6 text-primary mb-2" />
-                <span className="text-sm font-medium">2 Year Warranty</span>
-                <span className="text-xs text-muted-foreground">Full coverage</span>
-              </div>
-              <div className="flex flex-col items-center text-center p-4 rounded-xl bg-muted/30">
-                <RotateCcw className="h-6 w-6 text-primary mb-2" />
-                <span className="text-sm font-medium">30 Day Returns</span>
-                <span className="text-xs text-muted-foreground">Easy returns</span>
-              </div>
-            </div>
-
-            {/* Key Features */}
-            {product.features.length > 0 && (
-              <div className="pt-6 border-t border-border/50">
-                <h3 className="font-display font-semibold mb-4">Key Features</h3>
-                <ul className="space-y-2">
-                  {product.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3">
-                      <Check className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-sm text-muted-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Specifications */}
-            {Object.keys(product.specifications).length > 0 && (
-              <div className="pt-6 border-t border-border/50">
-                <h3 className="font-display font-semibold mb-4">Specifications</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex flex-col">
-                      <span className="text-xs text-muted-foreground">{key}</span>
-                      <span className="text-sm font-medium">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <section className="mt-16 pt-16 border-t border-border/50">
-            <h2 className="text-2xl font-display font-bold mb-8">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((item) => (
-                <ProductCard key={item.id} product={item} />
-              ))}
+        {/* Tabs / Sections */}
+        <div className="mt-16 space-y-16">
+          {/* Overview */}
+          <section id="overview" className="scroll-mt-24">
+            <h2 className="text-2xl font-display font-bold mb-6">Product Overview</h2>
+            <div className="prose prose-aura max-w-none text-muted-foreground">
+              <p className="leading-relaxed">{product.description}</p>
             </div>
           </section>
-        )}
+
+          {/* Specifications */}
+          {Object.keys(product.specifications).length > 0 && (
+            <section id="specifications" className="scroll-mt-24 pt-16 border-t border-border/50">
+              <h2 className="text-2xl font-display font-bold mb-8">Technical Specifications</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-6">
+                {Object.entries(product.specifications).map(([key, value]) => (
+                  <div key={key} className="flex flex-col pb-4 border-b border-border/30">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                      {key}
+                    </span>
+                    <span className="text-sm font-medium">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Reviews */}
+          <section id="reviews" className="scroll-mt-24 pt-16 border-t border-border/50">
+            <h2 className="text-2xl font-display font-bold mb-8 text-center sm:text-left">
+              Customer <span className="text-primary">Reviews</span>
+            </h2>
+            <ProductReviews
+              productId={product.id}
+              rating={product.rating}
+              reviewCount={product.reviewCount}
+            />
+          </section>
+
+          {/* Related Products */}
+          {relatedProducts.length > 0 && (
+            <section id="related" className="scroll-mt-24 pt-16 border-t border-border/50">
+              <h2 className="text-2xl font-display font-bold mb-8">Suggested for You</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((item) => (
+                  <ProductCard key={item.id} product={item} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </div>
     </div>
   );

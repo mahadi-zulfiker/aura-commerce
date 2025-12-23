@@ -81,17 +81,25 @@ export function Footer() {
               Curated tech essentials with a calm, modern edge. Designed for work, play, and everything between.
             </p>
             <div className="flex gap-4">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Twitter className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                  <Twitter className="h-4 w-4" />
+                </Link>
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Instagram className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-4 w-4" />
+                </Link>
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Youtube className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+                  <Youtube className="h-4 w-4" />
+                </Link>
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Github className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </div>

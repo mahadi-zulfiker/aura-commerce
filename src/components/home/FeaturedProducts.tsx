@@ -16,6 +16,10 @@ async function getFeaturedProducts(): Promise<Product[]> {
       return [];
     }
     const payload = await response.json();
+    // Paginated response has data.data structure due to ResponseInterceptor + pagination meta
+    if (payload && payload.data && Array.isArray(payload.data.data)) {
+      return payload.data.data;
+    }
     if (payload && Array.isArray(payload.data)) {
       return payload.data;
     }

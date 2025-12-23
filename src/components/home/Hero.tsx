@@ -6,7 +6,7 @@ import { imageBlurDataUrl } from "@/lib/placeholder";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[92vh] pt-24 lg:pt-28 flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen pt-16 flex items-center justify-center overflow-hidden">
       {/* Immersive Background Image */}
       <div className="absolute inset-0">
         <Image
