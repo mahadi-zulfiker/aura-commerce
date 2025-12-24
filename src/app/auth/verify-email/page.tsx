@@ -13,7 +13,7 @@ import { apiPost } from "@/lib/api";
 import { toast } from "sonner";
 
 const verifySchema = z.object({
-  token: z.string().min(6, "Verification token is required"),
+  token: z.string().length(6, "PIN must be 6 digits"),
 });
 
 type VerifyForm = z.infer<typeof verifySchema>;
@@ -60,14 +60,14 @@ function VerifyEmailContent() {
           <h1 className="text-3xl font-bold">Verify your email</h1>
           <p className="text-muted-foreground">
             {emailParam
-              ? `Enter the verification token sent to ${emailParam}.`
-              : "Enter the verification token sent to your email."}
+              ? `Enter the 6-digit PIN sent to ${emailParam}.`
+              : "Enter the 6-digit PIN sent to your email."}
           </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="token">Verification token</Label>
-            <Input id="token" placeholder="Paste your token" {...register("token")} />
+            <Label htmlFor="token">Verification PIN</Label>
+            <Input id="token" placeholder="Enter 6-digit PIN" {...register("token")} maxLength={6} />
             {errors.token && <p className="text-sm text-red-500">{errors.token.message}</p>}
           </div>
           <Button type="submit" className="w-full" disabled={isSubmitting}>

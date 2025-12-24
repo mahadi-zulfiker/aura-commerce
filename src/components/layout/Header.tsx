@@ -191,21 +191,24 @@ export function Header() {
               <NotificationBell />
             )}
 
-            {/* User Actions - Desktop Only */}
-            <div className="hidden sm:flex items-center gap-2">
+            {/* User Actions */}
+            <div className="flex items-center gap-1 sm:gap-2">
               {isMounted && hasHydrated && isAuthenticated ? (
-                <Button variant="ghost" size="sm" asChild className={ghostButtonClass}>
+                <Button variant="ghost" size="icon" asChild className={cn("sm:w-auto sm:px-3", ghostButtonClass)}>
                   <Link href="/dashboard" className="flex items-center gap-2">
                     <User className="h-5 w-5" />
-                    <span className="hidden lg:inline">{user?.firstName || "Account"}</span>
+                    <span className="hidden sm:inline-block lg:inline-block">{user?.firstName || "Account"}</span>
                   </Link>
                 </Button>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm" asChild className={ghostButtonClass}>
-                    <Link href="/auth/login">Login</Link>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button variant="ghost" size="icon" asChild className={cn("sm:w-auto sm:px-3", ghostButtonClass)}>
+                    <Link href="/auth/login" title="Login">
+                      <User className="h-5 w-5" />
+                      <span className="hidden sm:inline-block">Login</span>
+                    </Link>
                   </Button>
-                  <Button size="sm" asChild>
+                  <Button size="sm" asChild className="hidden sm:flex">
                     <Link href="/auth/register">Register</Link>
                   </Button>
                 </div>

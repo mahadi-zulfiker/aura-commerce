@@ -13,7 +13,7 @@ import { apiPost } from "@/lib/api";
 import { toast } from "sonner";
 
 const resetSchema = z.object({
-  token: z.string().min(6, "Reset token is required"),
+  token: z.string().length(6, "PIN must be 6 digits"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -60,13 +60,13 @@ function ResetPasswordContent() {
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Reset password</h1>
           <p className="text-muted-foreground">
-            Enter the reset token and choose a new password.
+            Enter the reset PIN and choose a new password.
           </p>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="token">Reset token</Label>
-            <Input id="token" placeholder="Paste your token" {...register("token")} />
+            <Label htmlFor="token">Reset PIN</Label>
+            <Input id="token" placeholder="Enter 6-digit PIN" {...register("token")} maxLength={6} />
             {errors.token && <p className="text-sm text-red-500">{errors.token.message}</p>}
           </div>
           <div className="grid gap-2">
