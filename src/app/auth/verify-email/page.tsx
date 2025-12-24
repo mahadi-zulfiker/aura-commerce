@@ -47,9 +47,10 @@ function VerifyEmailContent() {
         description: "You've successfully secured your Aura account.",
       });
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
+      const message = error instanceof Error ? error.message : "Please check the token and try again.";
       toast.error("Verification failed", {
-        description: error.message || "Please check the token and try again.",
+        description: message || "Please check the token and try again.",
       });
     }
   };
