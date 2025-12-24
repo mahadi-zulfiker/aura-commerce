@@ -5,12 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Mail, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiPost } from "@/lib/api";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const verifySchema = z.object({
   token: z.string().length(6, "PIN must be 6 digits"),
@@ -43,7 +44,7 @@ function VerifyEmailContent() {
     try {
       await apiPost("/auth/verify-email", data);
       toast.success("Email verified", {
-        description: "You can now use all Aura Commerce features.",
+        description: "You've successfully secured your Aura account.",
       });
       router.push("/dashboard");
     } catch (error: any) {
@@ -54,27 +55,48 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">Verify your email</h1>
-          <p className="text-muted-foreground">
-            {emailParam
-              ? `Enter the 6-digit PIN sent to ${emailParam}.`
-              : "Enter the 6-digit PIN sent to your email."}
-          </p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="space-y-2 text-center lg:text-left">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-[2rem] bg-primary/10 border border-primary/20 mb-4 animate-pulse">
+          <Mail className="h-8 w-8 text-primary" />
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="token">Verification PIN</Label>
-            <Input id="token" placeholder="Enter 6-digit PIN" {...register("token")} maxLength={6} />
-            {errors.token && <p className="text-sm text-red-500">{errors.token.message}</p>}
+        <h1 className="text-4xl font-display font-black tracking-tight">
+          Verify <span className="text-primary italic">Email.</span>
+        </h1>
+        <p className="text-white/50 text-base font-medium">
+          {emailParam
+            ? `We've sent a 6-digit PIN to ${emailParam}.`
+            : "Enter the verification PIN sent to your email."}
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="token" className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-1">Verification PIN</Label>
+          <div className="relative group/input">
+            <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20 group-focus-within/input:text-primary transition-colors" />
+            <Input
+              id="token"
+              placeholder="000 000"
+              {...register("token")}
+              maxLength={6}
+              disabled={isSubmitting}
+              className="h-14 bg-white/5 border-white/10 focus:border-primary/50 text-2xl font-display font-bold tracking-[0.5em] rounded-2xl pl-12 transition-all duration-300 placeholder:text-white/5"
+            />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Verify Email
-          </Button>
-        </form>
+          {errors.token && <p className="text-[10px] font-bold text-destructive ml-1">{errors.token.message}</p>}
+        </div>
+
+        <Button type="submit" className="w-full h-14 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300" disabled={isSubmitting}>
+          {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Verify Identity"}
+        </Button>
+      </form>
+
+      <div className="text-center lg:text-left">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 text-sm text-white/40 hover:text-primary font-bold transition-all group">
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          Back to Login
+        </Link>
       </div>
     </div>
   );
@@ -82,7 +104,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="flex flex-col items-center justify-center p-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <VerifyEmailContent />
     </Suspense>
   );
