@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, Mail, Lock, Eye, EyeOff, Chrome, Github } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, Chrome } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,14 +135,17 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" type="button" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all" disabled={isLoading}>
-                        <Chrome className="h-4 w-4 mr-2" /> Google
-                    </Button>
-                    <Button variant="outline" type="button" className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all" disabled={isLoading}>
-                        <Github className="h-4 w-4 mr-2" /> Github
-                    </Button>
-                </div>
+                <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all"
+                    disabled={isLoading}
+                    onClick={() => {
+                        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+                    }}
+                >
+                    <Chrome className="h-4 w-4 mr-2" /> Continue with Google
+                </Button>
             </form>
 
             <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
