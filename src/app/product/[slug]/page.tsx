@@ -238,6 +238,70 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               )}
             </div>
 
+            {/* Actions */}
+            <div className="flex flex-col gap-4 pt-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center border border-border/50 rounded-xl overflow-hidden h-12 bg-muted/20">
+                  <button
+                    className="px-4 h-full hover:bg-muted/50 transition-colors disabled:opacity-50"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <span className="w-12 text-center font-bold text-sm">{quantity}</span>
+                  <button
+                    className="px-4 h-full hover:bg-muted/50 transition-colors"
+                    onClick={() => setQuantity(quantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+                <Button
+                  className="flex-1 h-12 rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Add to Cart
+                </Button>
+              </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 mt-6 border-t border-border/50">
+              {[
+                { icon: Truck, label: "Free Shipping", sub: "Orders over $500" },
+                { icon: Shield, label: "Secure Payment", sub: "100% encrypted" },
+                { icon: RotateCcw, label: "Easy Returns", sub: "30-day window" },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center sm:items-start gap-2 p-4 rounded-2xl bg-muted/20 border border-white/5">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <div className="text-center sm:text-left">
+                    <p className="text-[10px] font-black uppercase tracking-widest leading-tight">{item.label}</p>
+                    <p className="text-[9px] text-muted-foreground font-medium mt-1">{item.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Availability */}
+            <div className="pt-6 mt-6 border-t border-border/50 space-y-4">
+              <div className="flex items-center gap-3 text-sm">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+                  <Check className="h-3 w-3 text-primary" />
+                </div>
+                <span className="text-muted-foreground font-medium">
+                  <span className="text-foreground font-bold italic mr-1">In Stock:</span>
+                  Usually ships within 24 hours
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Order Support
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
