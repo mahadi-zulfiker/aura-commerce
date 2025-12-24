@@ -74,14 +74,14 @@ export default function DashboardLayout({
     ].filter(item => !item.role || item.role.includes(user?.role || "USER"));
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row overflow-hidden">
+        <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:block w-72 h-screen sticky top-0 shrink-0 overflow-hidden">
+            <aside className="hidden md:block w-72 min-h-screen sticky top-0 shrink-0">
                 <SidebarNav />
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-screen relative bg-slate-950">
+            <div className="flex-1 flex flex-col min-h-screen bg-slate-950">
                 <DashboardHeader />
 
                 <main className="flex-1 overflow-y-auto scrollbar-thin px-4 py-8 md:px-10 pb-32 md:pb-10">
@@ -89,6 +89,8 @@ export default function DashboardLayout({
                         {children}
                     </div>
                 </main>
+
+                <DashboardFooter />
 
                 {/* Mobile Bottom Navigation */}
                 <nav className="md:hidden fixed bottom-6 left-6 right-6 h-20 glass rounded-[2.5rem] flex items-center justify-around px-2 z-50 border border-white/10 shadow-2xl shadow-black/50 overflow-hidden">
@@ -111,8 +113,6 @@ export default function DashboardLayout({
                     })}
                 </nav>
             </div>
-
-            <DashboardFooter />
         </div>
     );
 }
