@@ -4,7 +4,8 @@ import { useState } from "react";
 import type { MouseEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Star, Eye, ArrowUpRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/types/store";
@@ -50,126 +51,128 @@ export function ProductCard({ product, className }: ProductCardProps) {
   };
 
   return (
-    <Link
-      href={`/product/${product.slug}`}
-      className={cn("group block", className)}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      className={cn("group relative h-full", className)}
     >
-      <div className="product-card h-full flex flex-col">
-        {/* Image Container */}
-        <div className="relative aspect-square overflow-hidden rounded-t-xl bg-muted/30">
-          <Image
-            src={isHovered ? hoverImage : primaryImage}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            placeholder="blur"
-            blurDataURL={imageBlurDataUrl}
-          />
+      <Link href={`/product/${product.slug}`} className="block h-full">
+        <div className="product-card h-full flex flex-col bg-card/50 backdrop-blur-sm border-border/40 hover:border-primary/40 rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10">
+          {/* Image Container */}
+          <div className="relative aspect-[4/5] overflow-hidden bg-muted/20">
+            <Image
+              src={isHovered ? hoverImage : primaryImage}
+              alt={product.name}
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              placeholder="blur"
+              blurDataURL={imageBlurDataUrl}
+            />
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
-            {product.isNew && <Badge variant="new">NEW</Badge>}
-            {discount > 0 && <Badge variant="sale">-{discount}%</Badge>}
-          </div>
+            {/* Badges */}
+            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+              {product.isNew && (
+                <Badge className="bg-primary text-white border-none px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full shadow-lg shadow-primary/20">
+                  NEW
+                </Badge>
+              )}
+              {discount > 0 && (
+                <Badge className="bg-accent text-white border-none px-3 py-1 text-[10px] font-bold tracking-widest uppercase rounded-full shadow-lg shadow-accent/20">
+                  {discount}% OFF
+                </Badge>
+              )}
+            </div>
 
-          {/* Quick Actions */}
-          <div
-            className={cn(
-              "absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300",
-              isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
-            )}
-          >
-            <Button
-              variant="glass"
-              size="icon"
-              className="h-9 w-9"
-              onClick={handleWishlist}
-            >
-              <Heart
+            {/* Quick Actions */}
+            <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+              <Button
+                variant="glass"
+                size="icon"
                 className={cn(
-                  "h-4 w-4 transition-colors",
-                  isWishlisted && "fill-destructive text-destructive"
+                  "h-10 w-10 rounded-full transition-all duration-300 translate-x-12 group-hover:translate-x-0 opacity-0 group-hover:opacity-100",
+                  "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 shadow-xl text-foreground"
                 )}
-              />
-            </Button>
-            <Button
-              variant="glass"
-              size="icon"
-              className="h-9 w-9"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
+                onClick={handleWishlist}
+              >
+                <Heart
+                  className={cn(
+                    "h-5 w-5 transition-colors",
+                    isWishlisted ? "fill-red-500 text-red-500" : "text-foreground"
+                  )}
+                />
+              </Button>
+              <Button
+                variant="glass"
+                size="icon"
+                className={cn(
+                  "h-10 w-10 rounded-full transition-all duration-300 translate-x-12 group-hover:translate-x-0 opacity-0 group-hover:opacity-100 delay-75",
+                  "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 shadow-xl text-foreground"
+                )}
+              >
+                <Eye className="h-5 w-5 text-foreground" />
+              </Button>
+            </div>
+
+            {/* Add to Cart Overlay */}
+            <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/60 via-black/20 to-transparent transition-all duration-500 translate-y-full group-hover:translate-y-0">
+              <Button
+                className="w-full rounded-full bg-white text-black hover:bg-primary hover:text-white transition-all duration-300 font-bold tracking-wide h-12 shadow-xl"
+                onClick={handleAddToCart}
+                disabled={!product.inStock}
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                {product.inStock ? "Add To Cart" : "Out of Stock"}
+              </Button>
+            </div>
           </div>
 
-          {/* Add to Cart Overlay */}
-          <div
-            className={cn(
-              "absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-background/90 to-transparent transition-all duration-300",
-              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          {/* Content */}
+          <div className="flex flex-col flex-1 p-6">
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">
+                {product.brand}
+              </span>
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-accent text-accent" />
+                <span className="text-xs font-bold">{product.rating}</span>
+              </div>
+            </div>
+
+            <h3 className="text-lg font-bold leading-tight mb-4 group-hover:text-primary transition-colors line-clamp-1">
+              {product.name}
+            </h3>
+
+            <div className="mt-auto flex items-end justify-between">
+              <div className="flex flex-col">
+                {product.originalPrice && (
+                  <span className="text-sm text-muted-foreground line-through decoration-primary/30">
+                    ${product.originalPrice.toLocaleString()}
+                  </span>
+                )}
+                <span className="text-2xl font-display font-black text-primary leading-none">
+                  ${product.price.toLocaleString()}
+                </span>
+              </div>
+
+              <div className="h-10 w-10 rounded-full border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all duration-500">
+                <ArrowUpRight className="h-5 w-5 text-primary group-hover:text-white transition-colors" />
+              </div>
+            </div>
+
+            {/* In stock info */}
+            {product.inStock && product.stockCount < 5 && (
+              <p className="text-[10px] font-bold text-accent mt-4 animate-pulse uppercase tracking-widest">
+                Only {product.stockCount} items left!
+              </p>
             )}
-          >
-            <Button
-              variant="glow"
-              className="w-full"
-              onClick={handleAddToCart}
-              disabled={!product.inStock}
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {product.inStock ? "Add to Cart" : "Out of Stock"}
-            </Button>
           </div>
         </div>
-
-        {/* Content */}
-        <div className="flex flex-col flex-1 p-4">
-          {/* Brand */}
-          <span className="text-xs text-primary font-medium uppercase tracking-wider">
-            {product.brand}
-          </span>
-
-          {/* Name */}
-          <h3 className="font-medium mt-1 line-clamp-2 group-hover:text-primary transition-colors">
-            {product.name}
-          </h3>
-
-          {/* Rating */}
-          <div className="flex items-center gap-1 mt-2">
-            <Star className="h-4 w-4 fill-accent text-accent" />
-            <span className="text-sm font-medium">{product.rating}</span>
-            <span className="text-sm text-muted-foreground">
-              ({product.reviewCount.toLocaleString()})
-            </span>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-center gap-2 mt-auto pt-3">
-            <span className="text-lg font-display font-bold text-primary">
-              ${product.price.toLocaleString()}
-            </span>
-            {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                ${product.originalPrice.toLocaleString()}
-              </span>
-            )}
-          </div>
-
-          {/* Stock Status */}
-          {product.inStock ? (
-            product.stockCount < 10 && (
-              <span className="text-xs text-accent mt-1">
-                Only {product.stockCount} left!
-              </span>
-            )
-          ) : (
-            <span className="text-xs text-destructive mt-1">Out of Stock</span>
-          )}
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }
-
-

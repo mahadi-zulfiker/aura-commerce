@@ -8,7 +8,6 @@ import { FeaturesSection } from "@/components/home/FeaturesSection";
 import { StatsSection } from "@/components/home/StatsSection";
 import { BlogSection } from "@/components/home/BlogSection";
 import { FAQSection } from "@/components/home/FAQSection";
-import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "@/components/home/HomeSkeletons";
 
 export default function HomePage() {
@@ -29,7 +28,6 @@ export default function HomePage() {
       <BlogSection />
       <TestimonialsSection />
       <FAQSection />
-      <NewsletterSection />
     </>
   );
 }

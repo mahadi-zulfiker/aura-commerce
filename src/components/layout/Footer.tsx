@@ -1,118 +1,104 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, MapPin, Phone, Github, Twitter, Instagram, Youtube } from "lucide-react";
+import { MapPin, Phone, Github, Twitter, Instagram, Youtube, ArrowRight, Sparkles } from "lucide-react";
+import { useCategories } from "@/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCategories } from "@/hooks/use-categories";
-import { apiPost } from "@/lib/api";
-import { toast } from "sonner";
 
 export function Footer() {
   const { data: categories = [] } = useCategories();
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!email) {
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await apiPost("/newsletter/subscribe", { email });
-      toast.success("Subscribed", {
-        description: "You're now on the Aura Commerce newsletter.",
-      });
-      setEmail("");
-    } catch (error: any) {
-      toast.error("Subscription failed", {
-        description: error.message || "Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Common categories as fallback or additional links
+  const defaultCategories = [
+    { name: "Smartphones", slug: "smartphones" },
+    { name: "Laptops", slug: "laptops" },
+    { name: "Audio", slug: "audio" },
+    { name: "Wearables", slug: "wearables" },
+    { name: "Gaming", slug: "gaming" },
+  ];
+
+  const displayCategories = categories.length > 0 ? categories.slice(0, 5) : defaultCategories;
 
   return (
-    <footer className="border-t border-border/50 bg-aura-surface/60">
-      <div className="border-b border-border/50">
-        <div className="container mx-auto px-4 py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left">
-              <h3 className="text-2xl lg:text-3xl font-display font-bold mb-2">
-                Stay in the <span className="gradient-text">loop</span>
-              </h3>
-              <p className="text-muted-foreground max-w-md">
-                Subscribe to get special offers, free giveaways, and new arrivals.
-              </p>
+    <footer className="bg-slate-950 text-white pt-20 lg:pt-32 pb-10 lg:pb-16 overflow-hidden relative border-t border-white/5">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30" />
+      <div className="absolute top-0 left-1/4 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-primary/10 blur-[100px] lg:blur-[180px] rounded-full -translate-y-1/2 opacity-50" />
+      <div className="absolute bottom-0 right-1/4 w-[250px] lg:w-[500px] h-[250px] lg:h-[500px] bg-aura-sky/10 blur-[80px] lg:blur-[150px] rounded-full translate-y-1/2 opacity-50" />
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Top Section: Newsletter & Brand Brief */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16 mb-20 lg:mb-32 p-8 lg:p-16 rounded-[2rem] lg:rounded-[3rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl shadow-2xl relative overflow-hidden group text-center lg:text-left">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-aura-sky/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+          <div className="max-w-xl relative z-10">
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-primary">Join the Inner Circle</span>
             </div>
-            <form className="flex w-full lg:w-auto gap-2" onSubmit={handleSubscribe}>
+            <h2 className="text-3xl lg:text-5xl font-display font-black mb-6 tracking-tight leading-tight">
+              Unlock the <span className="text-primary italic">Future.</span>
+            </h2>
+            <p className="text-base lg:text-lg text-white/50 leading-relaxed max-w-lg mx-auto lg:mx-0">
+              Subscribers get early access to drops, exclusive technical guides, and community-only pricing.
+            </p>
+          </div>
+
+          <div className="w-full lg:max-w-md relative z-10">
+            <form className="flex flex-col sm:flex-row gap-4 relative group/input" onSubmit={(e) => e.preventDefault()}>
               <Input
                 type="email"
-                placeholder="Enter your email"
-                className="max-w-sm"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                placeholder="Enter your email address"
+                className="h-14 lg:h-16 bg-white/5 border-white/10 focus:border-primary/50 text-base rounded-2xl lg:rounded-[1.25rem] pl-6 transition-all duration-500 placeholder:text-white/20 sm:pr-40"
               />
-              <Button variant="glow" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Joining..." : "Subscribe"}
+              <Button type="submit" className="h-14 lg:h-12 sm:absolute sm:right-2 sm:top-2 px-8 rounded-xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                Join Now <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </form>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
-          <div className="col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/20 border border-primary/20 shadow-glow">
-                <Image src="/logo.svg" alt="Aura Commerce" width={24} height={24} />
+        {/* Main Links Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-12 mb-20 lg:mb-32">
+          {/* Brand Info */}
+          <div className="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left">
+            <Link href="/" className="inline-flex items-center gap-4 mb-8 lg:mb-10 group">
+              <div className="relative flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary to-primary-glow shadow-2xl shadow-primary/30 group-hover:rotate-12 transition-transform duration-500">
+                <Image src="/logo.svg" alt="Aura" width={28} height={28} className="lg:w-8 lg:h-8 brightness-0 invert" />
               </div>
-              <span className="text-2xl font-display font-bold">
-                <span className="gradient-text">Aura</span>{" "}
-                <span className="text-foreground/80">Commerce</span>
+              <span className="text-3xl lg:text-4xl font-display font-black tracking-tighter uppercase">
+                AURA<span className="text-primary italic">.</span>
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground mb-4">
-              Curated tech essentials with a calm, modern edge. Designed for work, play, and everything between.
+            <p className="text-base lg:text-lg text-white/40 mb-8 lg:mb-10 leading-relaxed font-medium max-w-sm">
+              We curate high-performance tech for the modern digital landscape. Experience engineering excellence.
             </p>
             <div className="flex gap-4">
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                  <Twitter className="h-4 w-4" />
+              {[Twitter, Instagram, Youtube, Github].map((Icon, i) => (
+                <Link
+                  key={i}
+                  href="#"
+                  className="h-12 w-12 lg:h-14 lg:w-14 rounded-xl lg:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary hover:text-white text-white/40 hover:scale-110 active:scale-95 transition-all duration-300"
+                >
+                  <Icon className="h-5 w-5 lg:h-6 lg:w-6 stroke-[1.5]" />
                 </Link>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-                  <Instagram className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href="https://youtube.com" target="_blank" rel="noopener noreferrer">
-                  <Youtube className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
-                  <Github className="h-4 w-4" />
-                </Link>
-              </Button>
+              ))}
             </div>
           </div>
 
-          <div>
-            <h4 className="font-display font-semibold mb-4">Categories</h4>
-            <ul className="space-y-2">
-              {categories.map((category) => (
-                <li key={category.id}>
+          {/* Nav Categories */}
+          <div className="lg:col-span-2 lg:ml-auto text-center lg:text-left">
+            <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary mb-8 lg:mb-10">Collections</h4>
+            <ul className="space-y-4 lg:space-y-6">
+              {displayCategories.map((category) => (
+                <li key={category.slug}>
                   <Link
                     href={`/products?category=${category.slug}`}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="text-white/40 hover:text-white transition-all duration-300 font-bold text-sm tracking-wide uppercase group flex items-center justify-center lg:justify-start gap-2"
                   >
+                    <span className="hidden lg:block w-0 h-[1.5px] bg-primary group-hover:w-3 transition-all duration-300 rounded-full" />
                     {category.name}
                   </Link>
                 </li>
@@ -120,100 +106,94 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-display font-semibold mb-4">Company</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/shops" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Shops
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Blog
-                </Link>
-              </li>
+          <div className="lg:col-span-2 text-center lg:text-left">
+            <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary mb-8 lg:mb-10">Company</h4>
+            <ul className="space-y-4 lg:space-y-6">
+              {[
+                { label: "The Journal", href: "/blog" },
+                { label: "Our Story", href: "/about" },
+                { label: "Explore Shops", href: "/shops" },
+                { label: "Join the Team", href: "/careers" },
+                { label: "Contact Us", href: "/contact" }
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-white/40 hover:text-white transition-all duration-300 font-bold text-sm tracking-wide uppercase group flex items-center justify-center lg:justify-start gap-2">
+                    <span className="hidden lg:block w-0 h-[1.5px] bg-primary group-hover:w-3 transition-all duration-300 rounded-full" />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-display font-semibold mb-4">Support</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Shipping
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Returns
-                </Link>
-              </li>
-              <li>
-                <Link href="/warranty" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Warranty
-                </Link>
-              </li>
+          <div className="lg:col-span-2 text-center lg:text-left">
+            <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary mb-8 lg:mb-10">Support</h4>
+            <ul className="space-y-4 lg:space-y-6">
+              {[
+                { label: "FAQ Center", href: "/faq" },
+                { label: "Shipping Policy", href: "/shipping" },
+                { label: "Return Portal", href: "/returns" },
+                { label: "Warranty Info", href: "/warranty" },
+                { label: "Get Help", href: "/contact" }
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="text-white/40 hover:text-white transition-all duration-300 font-bold text-sm tracking-wide uppercase group flex items-center justify-center lg:justify-start gap-2">
+                    <span className="hidden lg:block w-0 h-[1.5px] bg-primary group-hover:w-3 transition-all duration-300 rounded-full" />
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-display font-semibold mb-4">Contact</h4>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>San Francisco, CA</span>
+          <div className="lg:col-span-2 text-center lg:text-left">
+            <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary mb-8 lg:mb-10">Base</h4>
+            <ul className="space-y-6 lg:space-y-8 mt-2">
+              <li className="flex flex-col lg:flex-row items-center lg:items-start gap-3 lg:gap-5">
+                <div className="h-10 w-10 lg:h-12 lg:w-12 shrink-0 rounded-xl lg:rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 leading-none">Global HQ</span>
+                  <span className="text-sm font-bold text-white/70 leading-relaxed">Innovation Drive,<br />San Francisco, CA</span>
+                </div>
               </li>
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 text-primary" />
-                <span>hello@auracommerce.com</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
-                <span>+1 (555) 123-4567</span>
+              <li className="flex flex-col lg:flex-row items-center lg:items-start gap-3 lg:gap-5">
+                <div className="h-10 w-10 lg:h-12 lg:w-12 shrink-0 rounded-xl lg:rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 leading-none">Support</span>
+                  <span className="text-sm font-bold text-white/70 tracking-wider font-display">+1 (555) 000-0000</span>
+                </div>
               </li>
             </ul>
           </div>
         </div>
-      </div>
 
-      <div className="border-t border-border/50">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              (c) 2025 Aura Commerce. All rights reserved.
-            </p>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Policy
+        {/* Bottom Bar */}
+        <div className="pt-10 lg:pt-16 border-t border-white/5 flex flex-col items-center justify-between gap-8 lg:gap-10">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] lg:text-sm text-white/20 font-bold tracking-widest uppercase text-center">
+            <span>© 2025</span>
+            <span className="text-white/40">Aura Commerce</span>
+            <span className="hidden sm:block h-1 w-1 rounded-full bg-primary" />
+            <span className="w-full sm:w-auto mt-2 sm:mt-0">All Systems Operational</span>
+          </div>
+
+          <div className="flex gap-6 lg:gap-12">
+            {[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Warranty", href: "/warranty" },
+            ].map((item) => (
+              <Link key={item.label} href={item.href} className="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-white/20 hover:text-primary transition-colors duration-300">
+                {item.label}
               </Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Terms of Service
-              </Link>
-            </div>
+            ))}
           </div>
         </div>
       </div>
     </footer>
   );
 }
+

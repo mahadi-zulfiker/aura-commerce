@@ -1,8 +1,7 @@
 ﻿import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Category } from "@/types/store";
-import { imageBlurDataUrl } from "@/lib/placeholder";
+import { CategoryGrid } from "./CategoryGrid";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -31,81 +30,46 @@ export async function CategorySection() {
   const categories = await getCategories();
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-24 lg:py-32 overflow-hidden">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <h2 className="text-3xl lg:text-4xl font-display font-bold mb-2">
-              Shop by Category
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-4xl lg:text-5xl font-display font-black mb-4 tracking-tight">
+              Curated <span className="gradient-text">Collections</span>
             </h2>
-            <p className="text-muted-foreground">
-              Find exactly what you're looking for
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Explore our thoughtfully organized categories. From cutting-edge Gadgets to essential accessories, find exactly what fits your lifestyle.
             </p>
           </div>
           <Link
             href="/products"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="group flex items-center gap-3 text-sm font-bold text-primary uppercase tracking-widest"
+          >
+            <span>View All Categories</span>
+            <div className="h-10 w-10 flex items-center justify-center rounded-full border border-primary/20 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+        </div>
+
+        {/* Category Grid */}
+        <CategoryGrid categories={categories} />
+
+        {/* Mobile View All */}
+        <div className="mt-12 md:hidden">
+          <Link
+            href="/products"
+            className="flex items-center justify-center gap-2 p-4 rounded-2xl bg-muted/30 border border-border font-bold text-primary uppercase tracking-widest text-xs"
           >
             View All Categories
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-
-        {/* Category Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
-          {categories.map((category, index) => (
-            <Link
-              key={category.id}
-              href={`/products?category=${category.slug}`}
-              className="category-card group"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="aspect-square relative overflow-hidden">
-                {/* Background Image */}
-                <Image
-                  src={category.image || "/placeholder.svg"}
-                  alt={category.name}
-                  fill
-                  sizes="(min-width: 1024px) 16vw, (min-width: 640px) 33vw, 50vw"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  placeholder="blur"
-                  blurDataURL={imageBlurDataUrl}
-                />
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center justify-end p-4 text-center">
-                  <h3 className="font-display font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                    {category.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {category.productCount} Products
-                  </p>
-                </div>
-
-                {/* Hover Glow */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Mobile View All */}
-        <Link
-          href="/products"
-          className="sm:hidden flex items-center justify-center gap-2 mt-8 text-sm font-medium text-primary"
-        >
-          View All Categories
-          <ArrowRight className="h-4 w-4" />
-        </Link>
       </div>
     </section>
   );
 }
+
 
 

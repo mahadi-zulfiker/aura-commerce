@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { imageBlurDataUrl } from "@/lib/placeholder";
 
 const testimonials = [
@@ -37,90 +41,104 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-16 lg:py-24 bg-aura-surface/60 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="py-24 lg:py-32 relative overflow-hidden">
+      {/* Background accents */}
+      <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full -translate-y-1/2 -translate-x-1/2" />
+      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-accent/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-display font-bold mb-2">
-            What Our Customers <span className="gradient-text">Say</span>
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <h2 className="text-4xl lg:text-5xl font-display font-black mb-6 tracking-tight">
+            Loved by the <span className="gradient-text">Community</span>
           </h2>
-          <p className="text-muted-foreground">
-            Join thousands of satisfied customers worldwide
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            Don't just take our word for it. Join thousands of creators and gamers who have leveled up their experience with Aura.
           </p>
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-8 mb-24">
           {testimonials.map((testimonial, index) => (
-            <div
+            <motion.div
               key={testimonial.id}
-              className="relative p-6 rounded-2xl bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="relative p-8 rounded-[2rem] bg-card/40 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-2xl transition-all duration-500 group"
             >
               {/* Quote Icon */}
-              <Quote className="absolute top-6 right-6 h-10 w-10 text-primary/10" />
+              <div className="absolute -top-4 -right-4 h-12 w-12 bg-primary flex items-center justify-center rounded-2xl shadow-xl shadow-primary/20 transition-transform duration-500 group-hover:rotate-12">
+                <Quote className="h-6 w-6 text-white" />
+              </div>
 
               {/* Rating */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-accent text-accent" />
+              <div className="flex gap-1 mb-6">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={cn("h-4 w-4", i < testimonial.rating ? "fill-accent text-accent" : "text-muted-foreground/30")} />
                 ))}
               </div>
 
               {/* Content */}
-              <p className="text-foreground/90 mb-6 leading-relaxed">
+              <p className="text-lg text-foreground/90 mb-8 leading-relaxed italic">
                 "{testimonial.content}"
               </p>
 
               {/* Product Tag */}
-              <div className="inline-flex px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary font-medium mb-4">
-                {testimonial.product}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50 text-[10px] font-bold text-primary uppercase tracking-widest mb-8">
+                Purchased: {testimonial.product}
               </div>
 
               {/* Author */}
-              <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+              <div className="flex items-center gap-4 pt-6 border-t border-border/40">
                 <Image
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
                   placeholder="blur"
                   blurDataURL={imageBlurDataUrl}
                 />
                 <div>
-                  <p className="font-medium text-sm">{testimonial.name}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-bold text-base leading-none mb-1">{testimonial.name}</p>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
                     {testimonial.role}
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { value: "50K+", label: "Happy Customers" },
             { value: "4.9", label: "Average Rating" },
             { value: "100+", label: "Countries Served" },
             { value: "24/7", label: "Customer Support" },
           ].map((stat, index) => (
-            <div
+            <motion.div
               key={index}
-              className="text-center p-6 rounded-xl bg-card/50 border border-border/30"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="text-center p-8 rounded-3xl bg-muted/20 border border-border/40 hover:bg-muted/30 transition-colors duration-300"
             >
-              <p className="text-3xl lg:text-4xl font-display font-bold gradient-text">
+              <p className="text-4xl lg:text-5xl font-display font-black gradient-text leading-none mb-2">
                 {stat.value}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em]">
                 {stat.label}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

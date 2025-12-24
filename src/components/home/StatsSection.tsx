@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 export function StatsSection() {
     const stats = [
         { label: "Active Users", value: "250K+" },
@@ -7,22 +11,36 @@ export function StatsSection() {
     ];
 
     return (
-        <section className="py-16 lg:py-24 relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary/5 -skew-y-3 transform origin-left" />
-            <div className="container relative mx-auto px-4 text-center">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="py-24 relative overflow-hidden bg-slate-950">
+            {/* Animated background stripes */}
+            <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+            </div>
+
+            <div className="container relative mx-auto px-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
                     {stats.map((stat, index) => (
-                        <div key={index} className="space-y-2">
-                            <p className="text-4xl lg:text-5xl font-display font-bold gradient-text">
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.1, duration: 0.6 }}
+                            className="text-center group"
+                        >
+                            <p className="text-5xl lg:text-7xl font-display font-black text-white mb-3 tracking-tighter group-hover:scale-110 transition-transform duration-500">
                                 {stat.value}
                             </p>
-                            <p className="text-muted-foreground font-medium uppercase tracking-wider text-sm">
+                            <div className="w-12 h-1 bg-primary mx-auto mb-4 rounded-full" />
+                            <p className="text-primary-foreground/50 font-black uppercase tracking-[0.3em] text-[10px] lg:text-xs">
                                 {stat.label}
                             </p>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>
         </section>
     );
 }
+
